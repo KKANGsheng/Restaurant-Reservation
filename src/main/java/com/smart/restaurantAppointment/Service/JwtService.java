@@ -20,7 +20,7 @@ public class JwtService {
     private long expirationMs;
 
     @Value("${jwt.secret}")
-    private String secret;
+    private String jwtSecret;
 
 //  methods for generate Token
     public String generateToken(UserDetails user) {
@@ -36,16 +36,20 @@ public class JwtService {
     }
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());  // secret from @Value
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());  // secret from @Value
     }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+    public <T> T extractClaim(String token, Function<Claims,T> resolver) {
+        Claims claims = Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return resolver.apply(claims);
     }
 
 
@@ -62,4 +66,10 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) &&
+                extractClaim(token, Claims::getExpiration).after(new Date()));
+    }
 }
