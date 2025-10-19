@@ -15,4 +15,10 @@ public class GlobalExceptionHandler {
                 .badRequest()
                 .body(Map.of("error", ex.getMessage()));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception ex) {
+        ex.printStackTrace(); // Shows the real cause in console
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 }

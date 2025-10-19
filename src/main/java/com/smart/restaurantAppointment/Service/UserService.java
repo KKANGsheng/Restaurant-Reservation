@@ -5,7 +5,7 @@ import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Enumerator.UserRole;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.dto.MerchantRegisterDTO;
-import com.smart.restaurantAppointment.dto.UserRegisterDTO;
+import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.entity.Merchant;
 import com.smart.restaurantAppointment.entity.User;
 import com.smart.restaurantAppointment.repository.UserRepository;
@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -21,7 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User register(UserRegisterDTO register){
+    public User register(UserDTO register){
         User user=new User();
 
         if(StringUtils.isBlank(register.getEmail()) || StringUtils.isBlank(register.getPassword())){
@@ -46,4 +49,25 @@ public class UserService {
         return userRepository.save(user);
 
     }
+    public User resetPassword(UserDTO userDTO, Long id){
+
+//     Get user
+       Optional<User> user= Optional.ofNullable(userRepository.findByEmail(userDTO.getEmail()));
+
+       User existingUser= user.get();
+
+//      1. compare with previous
+        if (passwordEncoder.matches(userDTO.getPassword(), existingUser.getPassword())) {
+            throw new BadRequestException("New password cannot be the same as the old password");
+        }
+
+        // 2. Encode and save the new password
+        existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        return userRepository.save(existingUser);
+    }
+
+    public List<User> getAllUser(){
+        return userRepository.findAll();
+    }
+
 }

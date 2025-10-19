@@ -1,4 +1,4 @@
-package com.smart.restaurantAppointment.Service;
+package com.smart.restaurantAppointment.jwt;
 
 
 import io.jsonwebtoken.Claims;
@@ -17,7 +17,7 @@ import java.util.function.Function;
 public class JwtService {
 
     @Value("${jwt.expiration:1800000}") // 30 minutes default
-    private long expirationMs;
+    private long expirationTime;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -25,7 +25,7 @@ public class JwtService {
 //  methods for generate Token
     public String generateToken(UserDetails user) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationMs);
+        Date expiry = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
                 .subject(user.getUsername())
@@ -71,5 +71,21 @@ public class JwtService {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) &&
                 extractClaim(token, Claims::getExpiration).after(new Date()));
+    }
+
+    public long getExpirationTime() {
+        return expirationTime;
+    }
+
+    public void setExpirationTime(long expirationTime) {
+        this.expirationTime = expirationTime;
+    }
+
+    public String getJwtSecret() {
+        return jwtSecret;
+    }
+
+    public void setJwtSecret(String jwtSecret) {
+        this.jwtSecret = jwtSecret;
     }
 }

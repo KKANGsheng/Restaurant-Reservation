@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class UserRegisterDTO {
+public class UserDTO {
 
 
     @Email

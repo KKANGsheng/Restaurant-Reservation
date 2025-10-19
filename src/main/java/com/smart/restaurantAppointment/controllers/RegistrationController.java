@@ -4,20 +4,17 @@ package com.smart.restaurantAppointment.controllers;
 import com.smart.restaurantAppointment.Service.MerchantService;
 import com.smart.restaurantAppointment.Service.UserService;
 import com.smart.restaurantAppointment.dto.MerchantRegisterDTO;
-import com.smart.restaurantAppointment.dto.UserRegisterDTO;
+import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.entity.Merchant;
 import com.smart.restaurantAppointment.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("smart")
-public class RegisterController {
+public class RegistrationController {
 
     @Autowired
     UserService userService;
@@ -26,7 +23,7 @@ public class RegisterController {
     MerchantService merchantService;
 
     @PostMapping("/doRegister")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegisterDTO registerRequestDTO){
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO registerRequestDTO){
         User user =userService.register(registerRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
@@ -37,5 +34,7 @@ public class RegisterController {
         Merchant merchant= merchantService.register(merchantRegisterDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(merchant);
     }
+
+
 
 }

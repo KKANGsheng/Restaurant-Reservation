@@ -1,11 +1,15 @@
 package com.smart.restaurantAppointment.repository;
 
 import com.smart.restaurantAppointment.entity.Merchant;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
 public interface MerchantRepository extends JpaRepository<Merchant,Long> {
+
+
+    boolean existsByEmail(String email);
 
 }
