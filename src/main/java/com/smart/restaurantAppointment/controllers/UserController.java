@@ -2,6 +2,7 @@ package com.smart.restaurantAppointment.controllers;
 
 
 import com.smart.restaurantAppointment.Service.UserService;
+import com.smart.restaurantAppointment.Service.impl.UserServiceImpl;
 import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,4 +30,5 @@ public class UserController {
         List<User> allUser=userService.getAllUser();
         return new ResponseEntity<>(allUser,HttpStatus.ACCEPTED);
     }
+
 }
