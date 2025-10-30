@@ -1,5 +1,6 @@
 package com.smart.restaurantAppointment.entity;
 
+import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -7,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-// Represent one user information
+// This class is to let spring security know our userDetails right
 public class MyUserDetails implements UserDetails
 {
     private final User user;
@@ -33,21 +34,22 @@ public class MyUserDetails implements UserDetails
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+
+        return !user.getAccountLocked(); // true = not locked
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return user.getStatus() == AccountStatus.ACTIVE;
     }
 }

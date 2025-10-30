@@ -27,6 +27,8 @@ public class User extends  BaseEntity {
     @JoinColumn(name="merchant_id")
     private Merchant merchant;
 
+    private Boolean accountLocked;
+
 
 
 }

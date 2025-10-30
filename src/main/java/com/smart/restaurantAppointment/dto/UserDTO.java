@@ -2,6 +2,7 @@ package com.smart.restaurantAppointment.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jdk.jshell.Snippet;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,4 +19,8 @@ public class UserDTO {
     private String password;
 
     private Long merchantId;
+
+    private String merchantName;
+
+    private String status;
 }

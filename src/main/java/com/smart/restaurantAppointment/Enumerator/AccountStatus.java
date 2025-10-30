@@ -1,15 +1,19 @@
 package com.smart.restaurantAppointment.Enumerator;
 
+
+import lombok.Getter;
+
+@Getter
 public enum AccountStatus {
-    PENDING_ACTIVATION,
-    SUSPENDED,
-    ACTIVATION,
+    PENDING_ACTIVATION("Pending Activation"),
+    SUSPENDED("Suspended"),
+    ACTIVE("Active"),
+    UNDER_REVIEW("Under Review"),
+    TERMINATED("Terminated");
 
-    UNDER_REVIEW,
-    TERMINATED;
+    private final String description;
 
-
-
-
-
+    AccountStatus(String description) {
+        this.description = description;
+    }
 }

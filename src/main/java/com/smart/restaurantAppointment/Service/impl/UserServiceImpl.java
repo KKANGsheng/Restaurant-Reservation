@@ -8,6 +8,7 @@ import com.smart.restaurantAppointment.Service.UserService;
 import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.entity.Merchant;
 import com.smart.restaurantAppointment.entity.User;
+import com.smart.restaurantAppointment.repository.MerchantRepository;
 import com.smart.restaurantAppointment.repository.UserRepository;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MerchantRepository merchantRepository;
 
-    public User register(UserDTO register){
+    public UserDTO register(UserDTO register){
+        System.out.println("enter function bro");
         User user=new User();
 
         if(StringUtils.isBlank(register.getEmail()) || StringUtils.isBlank(register.getPassword())){
@@ -42,12 +45,16 @@ public class UserServiceImpl implements UserService {
         user.setStatus(AccountStatus.PENDING_ACTIVATION);
         user.setRole(UserRole.CUSTOMER);
 
-        Merchant merchant = new Merchant();
-        merchant.setId(register.getMerchantId());
+//        Merchant merchant = new Merchant();
+//        merchant.setId(register.getMerchantId());
+
+        Merchant merchant = merchantRepository.findById(register.getMerchantId())
+                .orElseThrow(() -> new BadRequestException("Merchant not found"));
         user.setMerchant(merchant);
 
-        return userRepository.save(user);
+        userRepository.save(user);
 
+        return packageResponseDTO(user,merchant);
     }
     public User resetPassword(UserDTO userDTO, Long id){
 
@@ -68,6 +75,17 @@ public class UserServiceImpl implements UserService {
 
     public List<User> getAllUser(){
         return userRepository.findAll();
+    }
+
+    @Override
+    public UserDTO packageResponseDTO(User user,Merchant merchant) {
+        UserDTO responseDTO =new UserDTO();
+
+        responseDTO.setEmail(user.getEmail());
+        responseDTO.setMerchantName(merchant.getName());
+        responseDTO.setStatus(user.getStatus().getDescription());
+
+        return responseDTO;
     }
 
 }

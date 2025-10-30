@@ -22,14 +22,15 @@ public class RegistrationController {
     @Autowired
     MerchantService merchantService;
 
-    @PostMapping("/user/register")
+    @PostMapping("/user")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO registerRequestDTO){
-        User user =userService.register(registerRequestDTO);
+        UserDTO user =userService.register(registerRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
+
     }
 
 
-    @PostMapping("/merchant/register")
+    @PostMapping("/merchant")
     public ResponseEntity <?> registerMerchant(@RequestBody MerchantRegisterDTO merchantRegisterDTO){
         Merchant merchant= merchantService.register(merchantRegisterDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(merchant);
