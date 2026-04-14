@@ -8,13 +8,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-// This class is to let spring security know our userDetails right
+// This class is to let spring security know our userDetails
 public class MyUserDetails implements UserDetails
 {
     private final User user;
 
     public MyUserDetails(User user) {
         this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override
@@ -39,8 +43,7 @@ public class MyUserDetails implements UserDetails
 
     @Override
     public boolean isAccountNonLocked() {
-
-        return !user.getAccountLocked(); // true = not locked
+        return !Boolean.TRUE.equals(user.getAccountLocked());
     }
 
     @Override

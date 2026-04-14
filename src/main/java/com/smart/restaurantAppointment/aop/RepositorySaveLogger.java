@@ -11,38 +11,28 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class RepositorySaveLogger {
+
+//  Aspect - is the class that contains cross-cutting logic.
+//  JointPoint - A point in a program where an action can be taken.
+//  Pointcut - An expression that defines where the advice should be applied.
+//  Advice- The action taken by an aspect at a particular jointPoint.(Before,After,Around,After returning,After throwing)
+//  Weaving -
+
     @Pointcut("execution(* com.smart.restaurantAppointment.repository..*(..))")
     public void repositoryMethods() {}
-
-    // 🔸 Before executing a repository method
-    @Before("repositoryMethods()")
-    public void logBefore(JoinPoint joinPoint) {
-        String method = joinPoint.getSignature().toShortString();
-        Object[] args = joinPoint.getArgs();
-        log.info("📥 [Repository CALL] {} | Args: {}", method, args);
-    }
-
-    // 🔸 After method successfully returns
-    @AfterReturning(pointcut = "repositoryMethods()", returning = "result")
-    public void logAfter(JoinPoint joinPoint, Object result) {
-        String method = joinPoint.getSignature().toShortString();
-        log.info("✅ [Repository RETURN] {} | Result: {}", method, result);
-    }
-
-    // 🔸 If method throws exception
-    @AfterThrowing(pointcut = "repositoryMethods()", throwing = "error")
-    public void logError(JoinPoint joinPoint, Throwable error) {
-        String method = joinPoint.getSignature().toShortString();
-        log.error("❌ [Repository ERROR] {} | Message: {}", method, error.getMessage());
-    }
 
     // 🔸 Around advice to log execution time
     @Around("repositoryMethods()")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         long start = System.currentTimeMillis();
-        Object result = joinPoint.proceed();
-        long duration = System.currentTimeMillis() - start;
-        log.info("⏱️ [Repository TIME] {} took {} ms", joinPoint.getSignature().toShortString(), duration);
-        return result;
+        try {
+            Object result = joinPoint.proceed();
+            long duration = System.currentTimeMillis() - start;
+            log.info("⏱️ [Repository TIME] {} took {} ms", joinPoint.getSignature().toShortString(), duration);
+            return result;
+        } catch(Throwable ex) {
+            log.error("❌ [{}] failed | {}", joinPoint.getSignature().toShortString(), ex.getMessage());
+            throw ex;
+        }
     }
 }

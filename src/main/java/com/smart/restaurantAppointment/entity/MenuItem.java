@@ -1,20 +1,21 @@
-//package com.smart.restaurantAppointment.entity;
-//
-//
-//import jakarta.persistence.Entity;
-//import jakarta.persistence.ManyToOne;
-//
-//import java.awt.*;
-//
-//@Entity
-//public class MenuItem  extends BaseEntity{
-//    @ManyToOne
-//    private Menu menu;
-//
-//    private String name;
-//    private String desc;
-//
-//    private Long price;
-//
-//    private Boolean available;
-//}
+package com.smart.restaurantAppointment.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@Entity
+@Setter
+@Getter
+public class MenuItem extends BaseEntity {
+    private String name;
+    private BigDecimal price;
+    private String description;
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
+}

@@ -1,5 +1,6 @@
 package com.smart.restaurantAppointment.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Enumerator.RestaurantCategory;
@@ -18,19 +19,20 @@ public class Merchant extends BaseEntity {
 
     private String name;
     private String email;
+    @JsonIgnore
     private String password;
     private String businessName;
     private String address;
-    private AccountStatus status;
     @Enumerated(EnumType.STRING)
-    private RestaurantCategory restaurantCategory;
-
+    private AccountStatus status;
 //  Lookup at the merchant field in restaurant
 //  Restaurant store fk
+    @JsonIgnore
     @OneToMany(mappedBy = "merchant")
     private List<Restaurant> restaurantList;
 
 //  User store fk
+    @JsonIgnore
     @OneToMany(mappedBy = "merchant")
     private List<User>customers;
 
@@ -40,7 +42,4 @@ public class Merchant extends BaseEntity {
     private String stripeCustomerId;
 
     private String stripeSubscriptionId;
-
-
-
 }

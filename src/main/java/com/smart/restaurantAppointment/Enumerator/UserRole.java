@@ -1,7 +1,7 @@
 package com.smart.restaurantAppointment.Enumerator;
 
 public enum UserRole {
-    Merchant,
+    MERCHANT,
     CUSTOMER,
     MERCHANT_ADMIN
 }

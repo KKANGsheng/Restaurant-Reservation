@@ -23,4 +23,6 @@ public class UserDTO {
     private String merchantName;
 
     private String status;
+
+    private String token;
 }

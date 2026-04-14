@@ -26,11 +26,13 @@ public class MerchantRegisterDTO {
     private AccountStatus status;
     @Enumerated(EnumType.STRING)
     private RestaurantCategory restaurantCategory;
+    private String restaurantName;
 
     @Enumerated(EnumType.STRING)
     private SubscriptionPlan subscriptionPlan;
 
     private String password;
+
 
 
 }

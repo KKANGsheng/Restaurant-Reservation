@@ -6,15 +6,20 @@ import com.smart.restaurantAppointment.Enumerator.UserRole;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.Service.UserService;
 import com.smart.restaurantAppointment.dto.UserDTO;
+import com.smart.restaurantAppointment.entity.InviteToken;
 import com.smart.restaurantAppointment.entity.Merchant;
 import com.smart.restaurantAppointment.entity.User;
+import com.smart.restaurantAppointment.repository.InviteTokenRepository;
 import com.smart.restaurantAppointment.repository.MerchantRepository;
 import com.smart.restaurantAppointment.repository.UserRepository;
+import com.smart.restaurantAppointment.util.SecurityUtils;
 import io.micrometer.common.util.StringUtils;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,43 +30,56 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MerchantRepository merchantRepository;
+    private final InviteTokenRepository inviteTokenRepository;
+    private static final int MAX_FAILED_ATTEMPTS = 5;
 
     public UserDTO register(UserDTO register){
-        System.out.println("enter function bro");
-        User user=new User();
+        Merchant merchant = SecurityUtils.getCurrentMerchant();
+        return createUser(register.getEmail(), register.getPassword(), merchant);
+    }
 
-        if(StringUtils.isBlank(register.getEmail()) || StringUtils.isBlank(register.getPassword())){
+    public UserDTO registerViaInvite(String email, String password, String token) {
+        InviteToken inviteToken = validateInviteToken(token);
+        Merchant merchant = inviteToken.getMerchant();
+
+        return createUser(email, password, merchant);
+    }
+
+    @Override
+    public void incrementFailedAttempts(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+                int attempts = user.getFailedAttempts() + 1;
+                user.setFailedAttempts(attempts);
+                if (attempts >= MAX_FAILED_ATTEMPTS) {
+                    user.setAccountLocked(true);
+                }
+            userRepository.save(user);
+            });
+    }
+
+    private UserDTO createUser(String email, String password, Merchant merchant) {
+        if (StringUtils.isBlank(email) || StringUtils.isBlank(password)) {
             throw new BadRequestException("Email and password are required");
         }
 
-        Boolean existUser=userRepository.existsByEmailAndMerchantId(register.getEmail(), register.getMerchantId());
-
-        if(existUser){
-            throw new BadRequestException("this email has been registered under this merchant");
+        if (userRepository.existsByEmailAndMerchantId(email, merchant.getId())) {
+            throw new BadRequestException("This email has been registered under this merchant");
         }
 
-        user.setEmail(register.getEmail());
-        user.setPassword(passwordEncoder.encode(register.getPassword()));
-        user.setStatus(AccountStatus.PENDING_ACTIVATION);
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setStatus(AccountStatus.ACTIVE);
         user.setRole(UserRole.CUSTOMER);
-
-//        Merchant merchant = new Merchant();
-//        merchant.setId(register.getMerchantId());
-
-        Merchant merchant = merchantRepository.findById(register.getMerchantId())
-                .orElseThrow(() -> new BadRequestException("Merchant not found"));
         user.setMerchant(merchant);
-
         userRepository.save(user);
 
-        return packageResponseDTO(user,merchant);
+        return packageResponseDTO(user, merchant);
     }
-    public User resetPassword(UserDTO userDTO, Long id){
+    public UserDTO resetPassword(UserDTO userDTO){
 
-//     Get user
-       Optional<User> user= Optional.ofNullable(userRepository.findByEmail(userDTO.getEmail()));
-
-       User existingUser= user.get();
+        User existingUser = userRepository.findByEmail(userDTO.getEmail())
+                .orElseThrow(() -> new BadRequestException("User not found"));
 
 //      1. compare with previous
         if (passwordEncoder.matches(userDTO.getPassword(), existingUser.getPassword())) {
@@ -70,11 +88,12 @@ public class UserServiceImpl implements UserService {
 
         // 2. Encode and save the new password
         existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        return userRepository.save(existingUser);
-    }
-
-    public List<User> getAllUser(){
-        return userRepository.findAll();
+        UserDTO dto = new UserDTO();
+        dto.setStatus(existingUser.getStatus().getDescription());
+        dto.setEmail(existingUser.getEmail());
+        dto.setMerchantName(existingUser.getMerchant().getName());
+        dto.setMerchantId(existingUser.getMerchant().getId());
+        return dto;
     }
 
     @Override
@@ -88,4 +107,23 @@ public class UserServiceImpl implements UserService {
         return responseDTO;
     }
 
+    public InviteToken validateInviteToken(String token) {
+        InviteToken inviteToken = inviteTokenRepository.findByToken(token)
+                .orElseThrow(() -> new BadRequestException("Token not found"));
+
+        if (LocalDateTime.now().isAfter(inviteToken.getExpiryDate())) {
+            throw new BadRequestException("Token is expired");
+        }
+
+        return inviteToken;
+    }
+
+    @Override
+    public void resetFailedAttempts(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            user.setFailedAttempts(0);
+            user.setAccountLocked(false);
+            userRepository.save(user);
+        });
+    }
 }
