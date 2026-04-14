@@ -1,4 +1,5 @@
 package com.smart.restaurantAppointment.Service.impl;
+import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.dto.ReservationRequestDTO;
 import com.smart.restaurantAppointment.entity.Merchant;
 import com.smart.restaurantAppointment.entity.Restaurant;
@@ -13,15 +14,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @ExtendWith(MockitoExtension.class)
 public class ReservationServiceImplTest {
 
     @Mock
     private ReservationRepository reservationRepository;
-
-    @Mock
-    private ReservationRepository reservationRepository;
-
+    
     @Mock
     private RedisTemplate<String,String> redisTemplate;
 
