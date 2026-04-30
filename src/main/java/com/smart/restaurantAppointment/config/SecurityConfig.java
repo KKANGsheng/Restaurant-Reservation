@@ -41,11 +41,13 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/user/login",
-                                        "/auth/user/refreshToken",
-                                        "/register/**",
-                                        "/swagger-ui/**", "/swagger-ui.html",
-                                        "/v3/api-docs/**").permitAll()
+                        .requestMatchers(
+                                "/auth/user/login",
+                                         "/auth/user/refreshToken",
+                                         "/register/**",
+                                         "/swagger-ui/**",
+                                         "/swagger-ui.html",
+                                         "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()            // others need JWT
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

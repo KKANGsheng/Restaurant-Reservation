@@ -7,6 +7,8 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Setter
 @Getter
@@ -22,4 +24,6 @@ public class RefreshToken extends BaseEntity {
     @ManyToOne
     @JoinColumn(name ="merchant_id")
     private Merchant merchant;
+
+    private LocalDateTime expiredAt;
 }

@@ -11,4 +11,6 @@ public interface RefreshTokenService {
     public RefreshToken createMerchantRefreshToken(Merchant merchant);
 
     public String issueRefreshToken(UserDetails userDetails);
+
+    public RefreshToken rotate(RefreshToken refreshToken);
 }

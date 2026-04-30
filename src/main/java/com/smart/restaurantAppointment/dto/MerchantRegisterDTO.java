@@ -36,6 +36,4 @@ public class MerchantRegisterDTO {
     @NotBlank
     private String password;
 
-
-
 }

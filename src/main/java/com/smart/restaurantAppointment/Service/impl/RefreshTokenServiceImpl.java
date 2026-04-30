@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -26,6 +27,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshToken.setUser(user);
         refreshToken.setRevoked(false);
         refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiredAt(LocalDateTime.now().plusDays(7));
         refreshTokenRepository.save(refreshToken);
         return refreshToken;
     }
@@ -36,6 +38,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshToken.setMerchant(merchant);
         refreshToken.setRevoked(false);
         refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiredAt(LocalDateTime.now().plusDays(7));
         refreshTokenRepository.save(refreshToken);
         return refreshToken;
     }
@@ -49,6 +52,19 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         }else{
             throw new IllegalStateException("Unsupported principal type: "+ userDetails.getClass().getName());
         }
+    }
+
+    @Override
+    public RefreshToken rotate(RefreshToken oldToken) {
+        oldToken.setRevoked(true);
+        refreshTokenRepository.save(oldToken);
+
+        if (oldToken.getUser()!=null) {
+            return  createUserRefreshToken(oldToken.getUser());
+        } else if (oldToken.getMerchant()!=null) {
+            return  createMerchantRefreshToken(oldToken.getMerchant());
+        }
+        throw new IllegalStateException("refreshToken did not Exist");
     }
 
 }

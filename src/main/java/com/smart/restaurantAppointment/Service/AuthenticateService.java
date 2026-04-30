@@ -11,7 +11,6 @@ import com.smart.restaurantAppointment.entity.RefreshToken;
 import com.smart.restaurantAppointment.jwt.JwtService;
 import com.smart.restaurantAppointment.repository.RefreshTokenRepository;
 import com.smart.restaurantAppointment.util.SecurityUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,7 +19,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -33,7 +34,7 @@ public class AuthenticateService {
     private final RefreshTokenService refreshTokenService;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public UserDetails Authenticate(LoginRequest input){
+    public UserDetails authenticate(LoginRequest input){
         try {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -53,7 +54,7 @@ public class AuthenticateService {
 
     public LoginResponse login(LoginRequest loginRequest) {
         //At here will either return refreshToken and accessToken
-        UserDetails authenticateUser = Authenticate(loginRequest);
+        UserDetails authenticateUser = authenticate(loginRequest);
         String jwtToken = jwtService.generateToken(authenticateUser);
         String refreshToken = refreshTokenService.issueRefreshToken(authenticateUser);
 
@@ -83,25 +84,15 @@ public class AuthenticateService {
         if (oldToken.isRevoked()) {
             throw new BadRequestException("Token has been revoked");
         }
-        UserDetails userDetails;
-        RefreshToken newToken = new RefreshToken();
-        oldToken.setRevoked(Boolean.TRUE);
-        refreshTokenRepository.save(oldToken);
-        if (oldToken.getMerchant()!=null) {
-            newToken.setMerchant(oldToken.getMerchant());
-            userDetails = new MerchantUserDetails(oldToken.getMerchant());
-        } else if (oldToken.getUser()!=null) {
-            newToken.setUser(oldToken.getUser());
-            userDetails = new MyUserDetails(oldToken.getUser());
-        } else{
-            throw new BadRequestException("did not belongs to any userDetails");
+        if (oldToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Token has Expired");
         }
-
-        newToken.setRevoked(Boolean.FALSE);
-        newToken.setToken(UUID.randomUUID().toString());
-        refreshTokenRepository.save(newToken);
+        RefreshToken newToken = refreshTokenService.rotate(oldToken);
+        UserDetails userDetails = newToken.getUser()!=null ?
+                                    new MyUserDetails(newToken.getUser())
+                                    : new MerchantUserDetails(newToken.getMerchant());
         String accessToken = jwtService.generateToken(userDetails);
-        return new RefreshTokenResponse(refreshToken,accessToken);
+        return new RefreshTokenResponse(newToken.getToken(),accessToken);
     }
 
 }
