@@ -23,6 +23,7 @@ public class UserDetailService implements UserDetailsService {
     @Autowired
     private MerchantRepository merchantRepository;
 
+//  Using two one for merchant one for user
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = userRepository.findByEmail(username);

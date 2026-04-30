@@ -17,6 +17,7 @@ import com.smart.restaurantAppointment.util.DateTimeUtils;
 import com.smart.restaurantAppointment.util.RedisKey;
 import com.smart.restaurantAppointment.util.SecurityUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,7 +36,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final RestaurantRepository restaurantRepository;
     private record BookingKeys(String lockKey, String bookedKey) {}
     private final  RedisTemplate<String, String> redisTemplate;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final  ApplicationEventPublisher eventPublisher;
 
     @Override
     public ReservationResponseDTO createReservation(ReservationRequestDTO dto, User user) {
@@ -58,7 +59,7 @@ public class ReservationServiceImpl implements ReservationService {
         event.setReservationDateTime(reservation.getReservationDateTime());
         event.setRestaurantName(restaurant.getName());
         event.setSize(reservation.getSize());
-        kafkaTemplate.send("booking-created", event);
+        eventPublisher.publishEvent(event);
         return ReservationResponseDTO.from(saved);
     }
 

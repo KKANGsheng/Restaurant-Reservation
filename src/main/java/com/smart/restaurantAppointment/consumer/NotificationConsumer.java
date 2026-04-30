@@ -1,7 +1,9 @@
 package com.smart.restaurantAppointment.consumer;
 
-
+import com.smart.restaurantAppointment.Service.NotificationService;
 import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
+import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
+import com.smart.restaurantAppointment.dto.UserCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,18 +16,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class NotificationConsumer {
 
-    private final JavaMailSender mailSender;
+    private final NotificationService notificationService;
 
     @KafkaListener(topics = "booking-created", groupId = "notification-group")
-    public void handleBookingCreated (BookingCreatedEvent event) {
-        log.info("New booking received: reservation Id={}, customer={}, restaurant={}"
-                ,event.getRefId(),event.getCustomerName(),event.getRestaurantName());
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(event.getEmail());
-        message.setSubject("Reservation Confirmed");
-        message.setText("Your Reservation at " + event.getRestaurantName()
-                       + " on " + event.getReservationDateTime()
-                       + " has received ");
-        mailSender.send(message);
+    public void handleBookingCreated(BookingCreatedEvent event) {
+        notificationService.sendBookingEventNotification(event);
     }
+
+    @KafkaListener(topics = "user-created", groupId = "notification-group")
+    public void handleUserCreated(UserCreatedEvent event) {
+        notificationService.sendUserCreatedNotification(event);
+    }
+
+    @KafkaListener(topics =  "merchant-created", groupId = "notification-group")
+    public void handleMerchantCreated(MerchantCreatedEvent event) {
+        notificationService.SendMerchantCreatedNotification(event);
+    }
+
 }

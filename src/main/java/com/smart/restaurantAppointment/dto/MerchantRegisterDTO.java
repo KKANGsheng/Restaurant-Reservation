@@ -22,15 +22,18 @@ public class MerchantRegisterDTO {
     private String email;
     @NotBlank
     private String businessName;
+    @NotBlank
     private String address;
     private AccountStatus status;
     @Enumerated(EnumType.STRING)
     private RestaurantCategory restaurantCategory;
+    @NotBlank
     private String restaurantName;
 
     @Enumerated(EnumType.STRING)
     private SubscriptionPlan subscriptionPlan;
 
+    @NotBlank
     private String password;
 
 

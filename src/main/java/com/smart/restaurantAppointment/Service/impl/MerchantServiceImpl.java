@@ -4,6 +4,7 @@ import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.Service.MerchantService;
 import com.smart.restaurantAppointment.config.AppConfig;
+import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
 import com.smart.restaurantAppointment.dto.MerchantRegisterDTO;
 import com.smart.restaurantAppointment.entity.InviteToken;
 import com.smart.restaurantAppointment.entity.Merchant;
@@ -14,6 +15,7 @@ import com.smart.restaurantAppointment.repository.RestaurantRepository;
 import com.smart.restaurantAppointment.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,10 +31,10 @@ public class MerchantServiceImpl implements MerchantService {
 
     private final MerchantRepository merchantRepository;
     private final PasswordEncoder passwordEncoder;
-    private final KafkaTemplate<String,Object> kafkaTemplate;
     private final InviteTokenRepository inviteTokenRepository;
     private final AppConfig appConfig;
     private final RestaurantRepository restaurantRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -54,8 +56,13 @@ public class MerchantServiceImpl implements MerchantService {
         restaurant.setStatus(AccountStatus.ACTIVE);
         restaurant.setRestaurantCategory(merchantRegisterDTO.getRestaurantCategory());
         restaurant.setMerchant(m);
-
         restaurantRepository.save(restaurant);
+//      publish event
+        MerchantCreatedEvent event =  new MerchantCreatedEvent();
+        event.setMerchantName(m.getName());
+        event.setEmail(m.getEmail());
+        event.setBusinessName(m.getBusinessName());
+        eventPublisher.publishEvent(event);
         return m;
     }
 

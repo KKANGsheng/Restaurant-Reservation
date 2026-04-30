@@ -5,6 +5,8 @@ import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Enumerator.UserRole;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.Service.UserService;
+import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
+import com.smart.restaurantAppointment.dto.UserCreatedEvent;
 import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.entity.InviteToken;
 import com.smart.restaurantAppointment.entity.Merchant;
@@ -16,8 +18,11 @@ import com.smart.restaurantAppointment.util.SecurityUtils;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +37,9 @@ public class UserServiceImpl implements UserService {
     private final MerchantRepository merchantRepository;
     private final InviteTokenRepository inviteTokenRepository;
     private static final int MAX_FAILED_ATTEMPTS = 5;
+    private final ApplicationEventPublisher eventPublisher;
 
+    @Transactional
     public UserDTO register(UserDTO register){
         Merchant merchant = SecurityUtils.getCurrentMerchant();
         return createUser(register.getEmail(), register.getPassword(), merchant);
@@ -73,6 +80,11 @@ public class UserServiceImpl implements UserService {
         user.setRole(UserRole.CUSTOMER);
         user.setMerchant(merchant);
         userRepository.save(user);
+
+        UserCreatedEvent event = new UserCreatedEvent();
+        event.setEmail(user.getEmail());
+        event.setRole(user.getRole().toString());
+        eventPublisher.publishEvent(event);
 
         return packageResponseDTO(user, merchant);
     }

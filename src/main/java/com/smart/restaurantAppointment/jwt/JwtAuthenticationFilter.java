@@ -38,7 +38,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String userEmail;
         String path = request.getRequestURI();
 
-        if (path.startsWith("/auth") || path.startsWith("/register")) {
+        if (path.startsWith("/auth/user/login")
+           || path.startsWith("/auth/user/refreshToken")
+           || path.startsWith("/register")
+           || path.startsWith("/swagger-ui")
+            || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -66,6 +70,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     userDetails, null, userDetails.getAuthorities()
                             );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//                  Set the securityContextHolder only when it is authenticate
+//                  ThreadLocal
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }

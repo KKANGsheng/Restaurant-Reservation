@@ -26,7 +26,6 @@ public class JwtService {
     public String generateToken(UserDetails user) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationTime);
-
         return Jwts.builder()
                 .subject(user.getUsername())
                 .issuedAt(now)
@@ -81,4 +80,6 @@ public class JwtService {
     public void setJwtSecret(String jwtSecret) {
         this.jwtSecret = jwtSecret;
     }
+
+
 }
