@@ -8,11 +8,9 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class TableReq {
-    @NotBlank
+public class UpdateTableReq {
+    @NotBlank(message = "Table name is required")
     private String name;
-    @NotNull @Min(1)
+    @NotNull @Min(value = 1, message = "Capacity must be greater than 0")
     private Integer capacity;
-    @NotNull
-    private Long restaurantId;
 }

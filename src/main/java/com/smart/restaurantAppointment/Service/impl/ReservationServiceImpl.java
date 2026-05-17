@@ -3,14 +3,13 @@ package com.smart.restaurantAppointment.Service.impl;
 import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Enumerator.ReservationStatus;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
+import com.smart.restaurantAppointment.Exception.ConflictException;
 import com.smart.restaurantAppointment.Service.ReservationService;
+import com.smart.restaurantAppointment.Service.TableService;
 import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
 import com.smart.restaurantAppointment.dto.ReservationRequestDTO;
 import com.smart.restaurantAppointment.dto.response.ReservationResponseDTO;
-import com.smart.restaurantAppointment.entity.Merchant;
-import com.smart.restaurantAppointment.entity.Reservation;
-import com.smart.restaurantAppointment.entity.Restaurant;
-import com.smart.restaurantAppointment.entity.User;
+import com.smart.restaurantAppointment.entity.*;
 import com.smart.restaurantAppointment.repository.ReservationRepository;
 import com.smart.restaurantAppointment.repository.RestaurantRepository;
 import com.smart.restaurantAppointment.util.DateTimeUtils;
@@ -24,8 +23,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -37,6 +39,7 @@ public class ReservationServiceImpl implements ReservationService {
     private record BookingKeys(String lockKey, String bookedKey) {}
     private final  RedisTemplate<String, String> redisTemplate;
     private final  ApplicationEventPublisher eventPublisher;
+    private final TableService tableService;
 
     @Override
     public ReservationResponseDTO createReservation(ReservationRequestDTO dto, User user) {
@@ -49,7 +52,15 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setReservationDateTime(dto.getReservationDateTime());
         reservation.setSize(dto.getSize());
         reservation.setRestaurant(restaurant);
+
+        LocalDateTime start = dto.getReservationDateTime();
+        LocalDateTime end = dto.getReservationDateTime().plusMinutes(restaurant.getDefaultBookingMinutes());
+        Table table= tableService.findBestFitFreeTable(restaurant,dto.getSize(),start, end).orElseThrow(()-> new ConflictException("No tables available at this time. Please pick another time slot"));
+
+        reservation.setAssignedTable(table);
+        reservation.setEndDateTime(end);
         Reservation saved = reservationRepository.save(reservation);
+
         redisTemplate.delete(keys.lockKey());
         redisTemplate.opsForValue().set(keys.bookedKey(), "1", RedisKey.BOOKING_BOOKED_TTL);
 //      publish event
@@ -65,14 +76,33 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public void validateReservation(Restaurant restaurant,User user, ReservationRequestDTO dto) {
-
+        LocalDateTime bookingTime = dto.getReservationDateTime();
         if (user.getMerchant() == null || !restaurant.getMerchant().getId().equals(user.getMerchant().getId())) {
             throw new BadRequestException("You are not authorized to book this restaurant");
         }
 
-        if (dto.getReservationDateTime().isBefore(LocalDateTime.now())) {
+        if (bookingTime.isBefore(LocalDateTime.now())) {
             throw new BadRequestException("cannot book the time that in the past");
         }
+
+        if (dto.getSize() <= 0) {
+            throw new BadRequestException("capacity cannot smaller than zero");
+        }
+
+        if (bookingTime.toLocalTime().isBefore(restaurant.getOpeningTime())) {
+            throw  new BadRequestException("Booking time is before opening Time");
+        }
+
+        if (!bookingTime.toLocalTime().isBefore(restaurant.getClosingTime())) {
+            throw new BadRequestException("Booking time is outside opening hours");
+        }
+
+        long minutesFromOpening = Duration.between(restaurant.getOpeningTime(), bookingTime.toLocalTime()).toMinutes();
+
+        if (minutesFromOpening % restaurant.getSlotIntervalMinutes() !=0) {
+            throw new BadRequestException("Booking time must align to the restaurant's slot interval");
+        }
+
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.smart.restaurantAppointment.Exception;
 
-public class BadRequestException extends RuntimeException{
+import org.springframework.http.HttpStatus;
 
-    public BadRequestException(String message){
-        super(message);
+public class BadRequestException extends AppException{
+
+    public BadRequestException(String message) {
+        super(HttpStatus.BAD_REQUEST, message);
     }
 }

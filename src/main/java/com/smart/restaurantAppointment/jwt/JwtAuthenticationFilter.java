@@ -18,9 +18,7 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-
     private final JwtService jwtService;
-
     private final UserDetailService userDetailsService;
 
     public JwtAuthenticationFilter(JwtService jwtService, UserDetailService userDetailsService) {
@@ -39,9 +37,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         if (path.startsWith("/auth/user/login")
-           || path.startsWith("/auth/user/refreshToken")
-           || path.startsWith("/register")
-           || path.startsWith("/swagger-ui")
+            || path.startsWith("/auth/user/refreshToken")
+            || path.startsWith("/register")
+            || path.startsWith("/swagger-ui")
+            || path.startsWith("/auth/password/forgot")
             || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;

@@ -48,6 +48,7 @@ public class MerchantController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
+
 }
 
 

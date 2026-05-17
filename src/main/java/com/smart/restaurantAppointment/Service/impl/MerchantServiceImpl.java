@@ -38,7 +38,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     @Transactional
-    public Merchant register(MerchantRegisterDTO merchantRegisterDTO){
+    public Merchant register(MerchantRegisterDTO merchantRegisterDTO) {
         validateMerchantRegisterRequest(merchantRegisterDTO);
 //      Register merchant
         Merchant merchant =new Merchant();

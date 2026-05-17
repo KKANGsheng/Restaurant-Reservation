@@ -3,6 +3,7 @@ package com.smart.restaurantAppointment.consumer;
 import com.smart.restaurantAppointment.Service.NotificationService;
 import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
 import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
+import com.smart.restaurantAppointment.dto.PasswordResetRequestedEvent;
 import com.smart.restaurantAppointment.dto.UserCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,12 @@ public class NotificationConsumer {
 
     @KafkaListener(topics =  "merchant-created", groupId = "notification-group")
     public void handleMerchantCreated(MerchantCreatedEvent event) {
-        notificationService.SendMerchantCreatedNotification(event);
+        notificationService.sendMerchantCreatedNotification(event);
+    }
+
+    @KafkaListener(topics =  "reset-password", groupId = "notification-group")
+    public void handlePasswordResetEventCreated(PasswordResetRequestedEvent event) {
+        notificationService.sendPasswordResetEventNotification(event);
     }
 
 }

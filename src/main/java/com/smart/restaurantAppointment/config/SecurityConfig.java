@@ -47,6 +47,7 @@ public class SecurityConfig {
                                          "/register/**",
                                          "/swagger-ui/**",
                                          "/swagger-ui.html",
+                                         "/auth/password/forgot",
                                          "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()            // others need JWT
                 )

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Setter
@@ -28,4 +29,9 @@ public class Reservation extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 
+    @ManyToOne
+    @JoinColumn(name ="assigned_table_id")
+    private Table assignedTable;
+
+    private LocalDateTime endDateTime;
 }

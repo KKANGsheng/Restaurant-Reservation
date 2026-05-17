@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalTime;
+
 @Setter
 @Getter
 public class RestaurantReq {
@@ -17,5 +19,12 @@ public class RestaurantReq {
     @NotNull (message = "Capacity is required")
     @Min     (value = 1, message = "Capacity must be at least 1")
     private Integer capacity;  // max people per time slot
-
+    @NotNull
+    private LocalTime openingTime;
+    @NotNull
+    private LocalTime closingTime;
+    @NotNull
+    private Integer   slotIntervalMinutes;
+    @NotNull
+    private Integer   defaultBookingMinutes;
 }

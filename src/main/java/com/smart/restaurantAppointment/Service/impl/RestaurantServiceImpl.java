@@ -47,6 +47,10 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurant.setContactNumber(dto.getContactNumber());
         restaurant.setMerchant(merchant);
         restaurant.setStatus(AccountStatus.ACTIVE);
+        restaurant.setOpeningTime(dto.getOpeningTime());
+        restaurant.setClosingTime(dto.getClosingTime());
+        restaurant.setDefaultBookingMinutes(90);
+        restaurant.setSlotIntervalMinutes(dto.getSlotIntervalMinutes());
         restaurantRepository.save(restaurant);
         return restaurant;
     }
@@ -82,7 +86,6 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public void validateRestaurantOwnership(Restaurant restaurant) {
         Merchant merchant = SecurityUtils.getCurrentMerchant();
-
         if (!restaurant.getMerchant().getId().equals(merchant.getId())) {
             throw new BadRequestException("You can only manage your own restaurant");
         }

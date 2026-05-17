@@ -17,10 +17,4 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PutMapping("")
-    public ResponseEntity<UserDTO> resetPassword(@RequestBody UserDTO userdto) {
-        UserDTO dto=userService.resetPassword(userdto);
-        return   ResponseEntity.ok(dto);
-    }
-
 }

@@ -5,18 +5,19 @@ import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Enumerator.UserRole;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.Service.UserService;
-import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
-import com.smart.restaurantAppointment.dto.UserCreatedEvent;
-import com.smart.restaurantAppointment.dto.UserDTO;
+import com.smart.restaurantAppointment.dto.*;
+import com.smart.restaurantAppointment.dto.Request.ChangePasswordReq;
+import com.smart.restaurantAppointment.dto.Request.ResetPasswordConfirmReq;
 import com.smart.restaurantAppointment.entity.InviteToken;
 import com.smart.restaurantAppointment.entity.Merchant;
+import com.smart.restaurantAppointment.entity.PasswordResetToken;
 import com.smart.restaurantAppointment.entity.User;
 import com.smart.restaurantAppointment.repository.InviteTokenRepository;
 import com.smart.restaurantAppointment.repository.MerchantRepository;
+import com.smart.restaurantAppointment.repository.PasswordResetTokenRepository;
 import com.smart.restaurantAppointment.repository.UserRepository;
 import com.smart.restaurantAppointment.util.SecurityUtils;
 import io.micrometer.common.util.StringUtils;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -25,8 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +38,8 @@ public class UserServiceImpl implements UserService {
     private final InviteTokenRepository inviteTokenRepository;
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private final ApplicationEventPublisher eventPublisher;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final KafkaTemplate<String,Object> kafkaTemplate;
 
     @Transactional
     public UserDTO register(UserDTO register){
@@ -88,30 +90,28 @@ public class UserServiceImpl implements UserService {
 
         return packageResponseDTO(user, merchant);
     }
-    public UserDTO resetPassword(UserDTO userDTO){
+    public void resetPassword(ChangePasswordReq request){
+       User existingUser = SecurityUtils.getCurrentUser();
 
-        User existingUser = userRepository.findByEmail(userDTO.getEmail())
-                .orElseThrow(() -> new BadRequestException("User not found"));
+//      1. compare old password with user enter password
 
-//      1. compare with previous
-        if (passwordEncoder.matches(userDTO.getPassword(), existingUser.getPassword())) {
+        if (!passwordEncoder.matches(request.oldPassword(),existingUser.getPassword())) {
+            throw new BadRequestException("old password is incorrect");
+        }
+
+//      2. new password cannot be same as old password
+        if (passwordEncoder.matches(request.newPassword(), existingUser.getPassword())) {
             throw new BadRequestException("New password cannot be the same as the old password");
         }
 
         // 2. Encode and save the new password
-        existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        UserDTO dto = new UserDTO();
-        dto.setStatus(existingUser.getStatus().getDescription());
-        dto.setEmail(existingUser.getEmail());
-        dto.setMerchantName(existingUser.getMerchant().getName());
-        dto.setMerchantId(existingUser.getMerchant().getId());
-        return dto;
+        existingUser.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(existingUser);
     }
 
     @Override
     public UserDTO packageResponseDTO(User user,Merchant merchant) {
         UserDTO responseDTO =new UserDTO();
-
         responseDTO.setEmail(user.getEmail());
         responseDTO.setMerchantName(merchant.getName());
         responseDTO.setStatus(user.getStatus().getDescription());
@@ -137,6 +137,37 @@ public class UserServiceImpl implements UserService {
             user.setAccountLocked(false);
             userRepository.save(user);
         });
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new BadRequestException("user is not exist"));
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setToken(UUID.randomUUID().toString());
+        passwordResetToken.setExpiryDate(LocalDateTime.now().plusMinutes(30));
+        passwordResetToken.setUser(user);
+        passwordResetToken.setEmail(user.getEmail());
+        passwordResetTokenRepository.save(passwordResetToken);
+
+        PasswordResetRequestedEvent event =  new PasswordResetRequestedEvent();
+        event.setEmail(user.getEmail());
+        event.setExpiresAt(passwordResetToken.getExpiryDate());
+        event.setToken(passwordResetToken.getToken());
+        kafkaTemplate.send("reset-password",event);
+    }
+
+    @Override
+    @Transactional
+    public void resetPasswordConfirm(ResetPasswordConfirmReq resetPasswordConfirmReq) {
+     PasswordResetToken  passwordResetToken = passwordResetTokenRepository.findByToken(resetPasswordConfirmReq.token())
+                                                                        .orElseThrow(()-> new BadRequestException("password Reset Token did not exist"));
+     if (passwordResetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+         throw new BadRequestException("invalid or expired token");
+     }
+     User user  = passwordResetToken.getUser();
+     user.setPassword(passwordEncoder.encode(resetPasswordConfirmReq.newPassword()));
+     userRepository.save(user);
+     passwordResetTokenRepository.deleteAllByUser(user);
     }
 
 }

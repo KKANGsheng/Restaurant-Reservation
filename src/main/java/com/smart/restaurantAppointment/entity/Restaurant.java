@@ -7,7 +7,10 @@ import com.smart.restaurantAppointment.Enumerator.RestaurantCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -30,4 +33,8 @@ public class Restaurant extends  BaseEntity{
     private AccountStatus status;
     @Enumerated(EnumType.STRING)
     private RestaurantCategory restaurantCategory;
+    private LocalTime openingTime;
+    private LocalTime closingTime;
+    private Integer defaultBookingMinutes;
+    private Integer slotIntervalMinutes;
 }
