@@ -1,29 +1,33 @@
 package com.smart.restaurantAppointment.jwt;
 
+import com.smart.restaurantAppointment.Enumerator.UserRole;
 import com.smart.restaurantAppointment.Service.UserDetailService;
+import com.smart.restaurantAppointment.security.AuthenticatedUser;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailService userDetailsService;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserDetailService userDetailsService) {
+    public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -34,49 +38,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
-        String path = request.getRequestURI();
-
-        if (path.startsWith("/auth/user/login")
-            || path.startsWith("/auth/user/refreshToken")
-            || path.startsWith("/register")
-            || path.startsWith("/swagger-ui")
-            || path.startsWith("/auth/password/forgot")
-            || path.startsWith("/v3/api-docs")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Missing or invalid Authorization header\"}");
+            filterChain.doFilter(request,response);
             return;
         }
-
-        jwt = authHeader.substring(7).trim();
-
         try {
-            userEmail = jwtService.extractUsername(jwt);
-
+            jwt = authHeader.substring(7).trim();
+//          retrieve JWT
+            Claims claims = jwtService.parseClaims(jwt);
+            userEmail = claims.getSubject();
+            UserRole role = UserRole.valueOf(claims.get("role", String.class));
+            Long  userId = claims.get("userId",Long.class);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
             if (userEmail != null && authentication == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities()
-                            );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//                  Set the securityContextHolder only when it is authenticate
-//                  ThreadLocal
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+//              Retrieve the stamp from the JWT token
+//              init Principal before setting to the spring security object
+                AuthenticatedUser principal = new AuthenticatedUser(userId, userEmail,role);
+//              Wraps the role into a format Spring security understands
+                var authorities = List.of(new SimpleGrantedAuthority(role.name()));
+//              create authentication object and set email to principal
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(principal, null , authorities);
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//              PreAuthorise will call securityContextHolder
+//              SecurityContextholder.getContext -< reads threadLocal
+//              .getAuthentication              -< gets the Authentication
+//              .getAuthorities()  -<              gets the user role (CUSTOMER) or (MERCHANT)
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
 
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
+//          Set response to 401
+            log.warn("Jwt validation failed:{}", exception.getMessage(),exception);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Invalid or expired token\"}");

@@ -25,4 +25,8 @@ public class UserDTO {
     private String status;
 
     private String token;
+
+    private String phoneNumber;
+
+    private String name;
 }

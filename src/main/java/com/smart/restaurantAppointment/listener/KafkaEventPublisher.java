@@ -2,6 +2,7 @@ package com.smart.restaurantAppointment.listener;
 
 import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
 import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
+import com.smart.restaurantAppointment.dto.PasswordResetRequestedEvent;
 import com.smart.restaurantAppointment.dto.UserCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,4 +35,10 @@ public class KafkaEventPublisher {
         log.info("booking created, sending BookingCreated topics to kafka");
         kafkaTemplate.send("booking-created",event);
     }
+
+    @TransactionalEventListener(phase =TransactionPhase.AFTER_COMMIT)
+    public void onPasswordResetRequest (PasswordResetRequestedEvent event) {
+        kafkaTemplate.send("reset-password", event);
+    }
+
 }

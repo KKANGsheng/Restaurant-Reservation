@@ -1,5 +1,6 @@
 package com.smart.restaurantAppointment.Service.impl;
 
+import com.smart.restaurantAppointment.Enumerator.EventPurpose;
 import com.smart.restaurantAppointment.Service.NotificationService;
 import com.smart.restaurantAppointment.Service.UserService;
 import com.smart.restaurantAppointment.config.AppConfig;
@@ -8,6 +9,7 @@ import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
 import com.smart.restaurantAppointment.dto.PasswordResetRequestedEvent;
 import com.smart.restaurantAppointment.dto.UserCreatedEvent;
 import com.smart.restaurantAppointment.entity.Merchant;
+import jdk.jfr.Event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -62,8 +64,25 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("send forgot password Event notification");
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(event.getEmail());
-        message.setSubject("Forgot Password Reset");
-        message.setText(appConfig.baseUrl  + "/forgot-password" + "?token=" + event.getToken());
+        String link = appConfig.baseUrl  + "/forgot-password?token=" +event.getToken();
+        if ((EventPurpose.RESET_PASSWORD.name().equals(event.getPurpose()))) {
+            message.setSubject("Reset password");
+            message.setText(
+                    "We received a request to reset your password.\n\n" +
+                            "Click the link to reset:\n" + link + "\n\n" +
+                            "If you didn't request this, ignore this email.\n\n" +
+                            "Link expires at " + event.getExpiresAt() + "."
+            );
+        } else if ((EventPurpose.NEW_USER_INVITE.name().equals(event.getPurpose()))) {
+            message.setSubject("Welcome " + event.getName() + " Please set your password");
+            message.setText(
+                    "Hi " + event.getName() + ",\n\n" +
+                            "An account has been created for you. Please click the link below to set your password:\n\n" +
+                            link + "\n\n" +
+                            "This link expires at " + event.getExpiresAt() + ".\n\n" +
+                            "Thanks!"
+            );
+        }
         mailSender.send(message);
     }
 }

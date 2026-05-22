@@ -40,6 +40,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final  RedisTemplate<String, String> redisTemplate;
     private final  ApplicationEventPublisher eventPublisher;
     private final TableService tableService;
+    private final SecurityUtils securityUtils;
 
     @Override
     public ReservationResponseDTO createReservation(ReservationRequestDTO dto, User user) {
@@ -107,7 +108,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Page<ReservationResponseDTO> getCustomerReservations(Pageable pageable) {
-        User user = SecurityUtils.getCurrentUser();
+        User user = securityUtils.getCurrentUser();
         return reservationRepository.findByCustomer(user, pageable)
                 .map(ReservationResponseDTO::from);
     }
@@ -115,7 +116,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Page<ReservationResponseDTO> getMerchantReservations(Pageable pageable) {
-        Merchant merchant = SecurityUtils.getCurrentMerchant();
+        Merchant merchant = securityUtils.getCurrentMerchant();
         List<Restaurant> restaurants = restaurantRepository.findByMerchant(merchant);
         return reservationRepository.findByRestaurantIn(restaurants ,pageable).map(ReservationResponseDTO::from);
     }
@@ -123,7 +124,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public ReservationResponseDTO cancelReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id).orElseThrow(()-> new BadRequestException("Reservation not found"));
-        Merchant merchant = SecurityUtils.getCurrentMerchant();
+        Merchant merchant = securityUtils.getCurrentMerchant();
 
         if (!reservation.getRestaurant().getMerchant().getId().equals(merchant.getId())) {
             throw new BadRequestException("You can only cancel reservations for your own restaurant");
@@ -142,7 +143,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public ReservationResponseDTO confirmReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id).orElseThrow(()-> new BadRequestException("Reservation not found"));
-        Merchant merchant = SecurityUtils.getCurrentMerchant();
+        Merchant merchant = securityUtils.getCurrentMerchant();
 
         if (!reservation.getRestaurant().getMerchant().getId().equals(merchant.getId())) {
             throw new BadRequestException("You can only confirm reservations for your own restaurant");

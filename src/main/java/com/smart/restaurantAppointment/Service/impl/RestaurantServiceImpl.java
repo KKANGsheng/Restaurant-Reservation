@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class RestaurantServiceImpl implements RestaurantService {
     private final RestaurantRepository restaurantRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     public List<Restaurant> getAllRestaurants() {
@@ -40,7 +41,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public Restaurant createRestaurant(RestaurantReq dto) {
-        Merchant merchant = SecurityUtils.getCurrentMerchant();
+        Merchant merchant = securityUtils.getCurrentMerchant();
         Restaurant restaurant = new Restaurant();
         restaurant.setName(dto.getName());
         restaurant.setAddress(dto.getAddress());
@@ -75,7 +76,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public List<Restaurant> getCustomerRestaurants() {
-        User user = SecurityUtils.getCurrentUser();
+        User user = securityUtils.getCurrentUser();
         Merchant merchant = user.getMerchant();
         if (merchant == null) {
             throw new BadRequestException("Customer must linked to a merchant");
@@ -85,7 +86,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public void validateRestaurantOwnership(Restaurant restaurant) {
-        Merchant merchant = SecurityUtils.getCurrentMerchant();
+        Merchant merchant = securityUtils.getCurrentMerchant();
         if (!restaurant.getMerchant().getId().equals(merchant.getId())) {
             throw new BadRequestException("You can only manage your own restaurant");
         }

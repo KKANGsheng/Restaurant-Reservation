@@ -10,4 +10,6 @@ public class PasswordResetRequestedEvent {
     private String email;
     private String token;
     private LocalDateTime expiresAt;
+    private String purpose;
+    private String name;
 }

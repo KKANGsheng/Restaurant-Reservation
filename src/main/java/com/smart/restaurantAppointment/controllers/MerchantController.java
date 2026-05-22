@@ -4,6 +4,7 @@ import com.smart.restaurantAppointment.Service.MerchantService;
 import com.smart.restaurantAppointment.Service.ReservationService;
 import com.smart.restaurantAppointment.Service.RestaurantService;
 import com.smart.restaurantAppointment.Service.UserService;
+import com.smart.restaurantAppointment.dto.Request.CreatedUserByMerchantReq;
 import com.smart.restaurantAppointment.dto.Request.RestaurantReq;
 import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.dto.response.ApiResponse;
@@ -41,13 +42,12 @@ public class MerchantController {
     }
 
     //  Merchant can manually register user
-    @PostMapping("/register/user")
+    @PostMapping("/user")
     @PreAuthorize("hasAuthority('MERCHANT')")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UserDTO registerRequestDTO) {
-        UserDTO user = userService.register(registerRequestDTO);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody CreatedUserByMerchantReq registerReq) {
+        UserDTO user = userService.register(registerReq);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
-
 
 }
 

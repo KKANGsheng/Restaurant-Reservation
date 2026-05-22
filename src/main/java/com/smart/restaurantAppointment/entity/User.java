@@ -14,21 +14,17 @@ import org.springframework.amqp.rabbit.support.ActiveObjectCounter;
 @Getter
 public class User extends  BaseEntity {
     private String email;
-
     @JsonIgnore
     private String password;
-
     @Enumerated(EnumType.STRING)
     private UserRole role;
-
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
-
     @ManyToOne
     @JoinColumn(name="merchant_id")
     private Merchant merchant;
-
     private Boolean accountLocked;
     private int failedAttempts;
-
+    private String phoneNumber;
+    private String name;
 }

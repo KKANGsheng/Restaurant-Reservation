@@ -1,6 +1,7 @@
 package com.smart.restaurantAppointment.Service;
 
 import com.smart.restaurantAppointment.dto.Request.ChangePasswordReq;
+import com.smart.restaurantAppointment.dto.Request.CreatedUserByMerchantReq;
 import com.smart.restaurantAppointment.dto.Request.ResetPasswordConfirmReq;
 import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.entity.InviteToken;
@@ -9,7 +10,7 @@ import com.smart.restaurantAppointment.entity.User;
 
 public interface UserService {
 
-    UserDTO register(UserDTO userDTO);
+    UserDTO register(CreatedUserByMerchantReq registerReq);
     void resetPassword(ChangePasswordReq changePasswordReq);
 
     UserDTO packageResponseDTO(User user, Merchant merchant);
@@ -25,4 +26,5 @@ public interface UserService {
     void forgotPassword(String email);
 
     void resetPasswordConfirm(ResetPasswordConfirmReq resetPasswordConfirmReq);
+
 }

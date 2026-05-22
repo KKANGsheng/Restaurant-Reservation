@@ -35,6 +35,7 @@ public class MerchantServiceImpl implements MerchantService {
     private final AppConfig appConfig;
     private final RestaurantRepository restaurantRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional
@@ -74,7 +75,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public String generateInviteUrlLink() {
-        Merchant merchant = SecurityUtils.getCurrentMerchant();
+        Merchant merchant = securityUtils.getCurrentMerchant();
         String token = UUID.randomUUID().toString();
         InviteToken inviteToken = new InviteToken();
         inviteToken.setMerchant(merchant);

@@ -3,19 +3,23 @@ package com.smart.restaurantAppointment.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
+    @Getter
     @Value("${jwt.expiration:1800000}") // 30 minutes default
     private long expirationTime;
 
@@ -23,28 +27,30 @@ public class JwtService {
     private String jwtSecret;
 
 //  methods for generate Token
-    public String generateToken(UserDetails user) {
+    public String generateJwtToken (Long id, String email, String role) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationTime);
+        Date expiryDate = new Date(now.getTime() + expirationTime);
         return Jwts.builder()
-                .subject(user.getUsername())
-                .issuedAt(now)
-                .expiration(expiry)
-                .signWith(getSigningKey(),SignatureAlgorithm.HS256)
+                .subject(email)
+                .claim("role",role)
+                .claim("userId",id)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
                 .compact();
     }
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());  // secret from @Value
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
+//  extract userName
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     public <T> T extractClaim(String token, Function<Claims,T> resolver) {
         Claims claims = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+                .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -65,20 +71,13 @@ public class JwtService {
                 extractClaim(token, Claims::getExpiration).after(new Date()));
     }
 
-    public long getExpirationTime() {
-        return expirationTime;
-    }
 
-    public void setExpirationTime(long expirationTime) {
-        this.expirationTime = expirationTime;
-    }
-
-    public String getJwtSecret() {
-        return jwtSecret;
-    }
-
-    public void setJwtSecret(String jwtSecret) {
-        this.jwtSecret = jwtSecret;
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
 

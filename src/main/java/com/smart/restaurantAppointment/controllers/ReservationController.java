@@ -7,6 +7,7 @@ import com.smart.restaurantAppointment.dto.response.ReservationResponseDTO;
 import com.smart.restaurantAppointment.entity.Reservation;
 import com.smart.restaurantAppointment.entity.MyUserDetails;
 import com.smart.restaurantAppointment.entity.User;
+import com.smart.restaurantAppointment.util.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,14 +24,15 @@ import java.util.List;
 @RequestMapping("/api/v1/reservations")
 public class ReservationController {
     private final ReservationService reservationService;
-    public ReservationController(ReservationService reservationService) {
+    private final SecurityUtils securityUtils;
+    public ReservationController(ReservationService reservationService, SecurityUtils securityUtils) {
         this.reservationService = reservationService;
+        this.securityUtils = securityUtils;
     }
     @PostMapping("")
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<ReservationResponseDTO> createReservation(@Valid @RequestBody ReservationRequestDTO dto) {
-        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userDetails.getUser();
+        User user = securityUtils.getCurrentUser();
         ReservationResponseDTO reservation = reservationService.createReservation(dto, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }

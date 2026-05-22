@@ -2,6 +2,7 @@ package com.smart.restaurantAppointment.entity;
 
 import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Enumerator.UserRole;
+import com.smart.restaurantAppointment.security.AppPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-public class MerchantUserDetails implements UserDetails {
+public class MerchantUserDetails implements AppPrincipal {
 
     private final Merchant merchant;
 
@@ -55,4 +56,15 @@ public class MerchantUserDetails implements UserDetails {
     public boolean isEnabled() {
         return merchant.getStatus() == AccountStatus.ACTIVE;
     }
+
+    @Override
+    public Long getId() {
+        return merchant.getId();
+    }
+
+    @Override
+    public UserRole getRole() {
+        return UserRole.MERCHANT;
+    }
+
 }

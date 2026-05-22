@@ -9,4 +9,7 @@ public class AppConfig {
 
     @Value("${app.base-url}")
     public String baseUrl;
+
+    @Value("${app.frontend-url}")
+    public String baseFrontendUrl;
 }

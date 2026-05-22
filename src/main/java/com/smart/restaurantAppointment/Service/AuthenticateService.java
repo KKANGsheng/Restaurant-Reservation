@@ -1,6 +1,7 @@
 package com.smart.restaurantAppointment.Service;
 
 
+import com.smart.restaurantAppointment.Enumerator.UserRole;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.dto.LoginRequest;
 import com.smart.restaurantAppointment.dto.LoginResponse;
@@ -10,6 +11,7 @@ import com.smart.restaurantAppointment.entity.MyUserDetails;
 import com.smart.restaurantAppointment.entity.RefreshToken;
 import com.smart.restaurantAppointment.jwt.JwtService;
 import com.smart.restaurantAppointment.repository.RefreshTokenRepository;
+import com.smart.restaurantAppointment.security.AppPrincipal;
 import com.smart.restaurantAppointment.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,14 +29,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthenticateService {
-
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public UserDetails authenticate(LoginRequest input){
+    public UserDetails authenticate(LoginRequest input) {
         try {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -54,15 +55,15 @@ public class AuthenticateService {
 
     public LoginResponse login(LoginRequest loginRequest) {
         //At here will either return refreshToken and accessToken
-        UserDetails authenticateUser = authenticate(loginRequest);
-        String jwtToken = jwtService.generateToken(authenticateUser);
-        String refreshToken = refreshTokenService.issueRefreshToken(authenticateUser);
+        AppPrincipal appPrincipal = (AppPrincipal) authenticate(loginRequest);
+        String jwtToken = jwtService.generateJwtToken(appPrincipal.getId(),appPrincipal.getUsername(), appPrincipal.getRole().name());
+        String refreshToken = refreshTokenService.issueRefreshToken(appPrincipal);
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setAccessToken(jwtToken);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
-        loginResponse.setEmail(authenticateUser.getUsername());
-        loginResponse.setRole(authenticateUser.getAuthorities().iterator().next().getAuthority());
+        loginResponse.setEmail(appPrincipal.getUsername());
+        loginResponse.setRole(appPrincipal.getAuthorities().iterator().next().getAuthority());
         loginResponse.setRefreshToken(refreshToken);
         return loginResponse;
     }
@@ -88,10 +89,10 @@ public class AuthenticateService {
             throw new BadRequestException("Token has Expired");
         }
         RefreshToken newToken = refreshTokenService.rotate(oldToken);
-        UserDetails userDetails = newToken.getUser()!=null ?
+        AppPrincipal appPrincipal = (AppPrincipal) newToken.getUser()!=null ?
                                     new MyUserDetails(newToken.getUser())
                                     : new MerchantUserDetails(newToken.getMerchant());
-        String accessToken = jwtService.generateToken(userDetails);
+        String accessToken = jwtService.generateJwtToken(appPrincipal.getId(), appPrincipal.getUsername(), appPrincipal.getRole().name());
         return new RefreshTokenResponse(newToken.getToken(),accessToken);
     }
 
