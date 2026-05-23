@@ -8,6 +8,7 @@ import com.smart.restaurantAppointment.Service.ReservationService;
 import com.smart.restaurantAppointment.Service.TableService;
 import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
 import com.smart.restaurantAppointment.dto.ReservationRequestDTO;
+import com.smart.restaurantAppointment.dto.response.PageResponse;
 import com.smart.restaurantAppointment.dto.response.ReservationResponseDTO;
 import com.smart.restaurantAppointment.entity.*;
 import com.smart.restaurantAppointment.repository.ReservationRepository;
@@ -16,6 +17,7 @@ import com.smart.restaurantAppointment.util.DateTimeUtils;
 import com.smart.restaurantAppointment.util.RedisKey;
 import com.smart.restaurantAppointment.util.SecurityUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -56,7 +59,9 @@ public class ReservationServiceImpl implements ReservationService {
 
         LocalDateTime start = dto.getReservationDateTime();
         LocalDateTime end = dto.getReservationDateTime().plusMinutes(restaurant.getDefaultBookingMinutes());
-        Table table= tableService.findBestFitFreeTable(restaurant,dto.getSize(),start, end).orElseThrow(()-> new ConflictException("No tables available at this time. Please pick another time slot"));
+
+
+        RestaurantTable table= tableService.findBestFitFreeTable(restaurant,dto.getSize(),start, end).orElseThrow(()-> new ConflictException("No tables available at this time. Please pick another time slot"));
 
         reservation.setAssignedTable(table);
         reservation.setEndDateTime(end);
@@ -107,18 +112,21 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Page<ReservationResponseDTO> getCustomerReservations(Pageable pageable) {
+    public Page<ReservationResponseDTO>  getCustomerReservations(Pageable pageable) {
         User user = securityUtils.getCurrentUser();
         return reservationRepository.findByCustomer(user, pageable)
                 .map(ReservationResponseDTO::from);
     }
 
-
     @Override
-    public Page<ReservationResponseDTO> getMerchantReservations(Pageable pageable) {
+    public PageResponse<ReservationResponseDTO> getMerchantReservations(Pageable pageable, LocalDate fromDate, LocalDate toDate, ReservationStatus reservationStatus, String customerName, String email, Long restaurantId) {
         Merchant merchant = securityUtils.getCurrentMerchant();
-        List<Restaurant> restaurants = restaurantRepository.findByMerchant(merchant);
-        return reservationRepository.findByRestaurantIn(restaurants ,pageable).map(ReservationResponseDTO::from);
+        LocalDateTime fromDateTime = fromDate != null ?  fromDate.atStartOfDay():null;
+        LocalDateTime endDateTime  = toDate != null ? toDate.atTime(23,59,59):null;
+
+        Page<Reservation> page= reservationRepository.searchReservations(merchant.getId(),restaurantId,reservationStatus, fromDateTime, endDateTime,customerName,email,pageable);
+        Page<ReservationResponseDTO> dtoPage = page.map(ReservationResponseDTO::from);
+        return PageResponse.from(dtoPage);
     }
 
     @Override

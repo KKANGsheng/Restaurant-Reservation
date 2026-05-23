@@ -5,7 +5,7 @@ import com.smart.restaurantAppointment.dto.Request.TableReq;
 import com.smart.restaurantAppointment.dto.Request.UpdateTableReq;
 import com.smart.restaurantAppointment.entity.Merchant;
 import com.smart.restaurantAppointment.entity.Restaurant;
-import com.smart.restaurantAppointment.entity.Table;
+import com.smart.restaurantAppointment.entity.RestaurantTable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,13 +14,13 @@ import java.util.Optional;
 
 public interface TableService {
 
-    public Table createTable(TableReq req);
+    public RestaurantTable createTable(TableReq req);
 
-    public List<Table> getRestaurantTables(Long restaurantId);
+    public List<RestaurantTable> getRestaurantTables(Long restaurantId);
 
-    public Table updateTable(Long tableId, UpdateTableReq req);
+    public RestaurantTable updateTable(Long tableId, UpdateTableReq req);
 
     public void deleteTable(Long tableId);
 
-    public Optional<Table> findBestFitFreeTable (Restaurant restaurant, int capacity, LocalDateTime start, LocalDateTime end);
+    public Optional<RestaurantTable> findBestFitFreeTable (Restaurant restaurant, int capacity, LocalDateTime start, LocalDateTime end);
 }

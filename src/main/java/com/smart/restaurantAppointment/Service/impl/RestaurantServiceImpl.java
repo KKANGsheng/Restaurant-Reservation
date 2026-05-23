@@ -52,6 +52,7 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurant.setClosingTime(dto.getClosingTime());
         restaurant.setDefaultBookingMinutes(90);
         restaurant.setSlotIntervalMinutes(dto.getSlotIntervalMinutes());
+        restaurant.setRestaurantCategory(dto.getRestaurantCategory());
         restaurantRepository.save(restaurant);
         return restaurant;
     }

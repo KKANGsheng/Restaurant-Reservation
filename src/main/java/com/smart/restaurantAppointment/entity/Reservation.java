@@ -31,7 +31,7 @@ public class Reservation extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name ="assigned_table_id")
-    private Table assignedTable;
+    private RestaurantTable assignedTable;
 
     private LocalDateTime endDateTime;
 }

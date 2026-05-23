@@ -1,5 +1,6 @@
 package com.smart.restaurantAppointment.dto.Request;
 
+import com.smart.restaurantAppointment.Enumerator.RestaurantCategory;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,4 +28,6 @@ public class RestaurantReq {
     private Integer   slotIntervalMinutes;
     @NotNull
     private Integer   defaultBookingMinutes;
+    @NotNull
+    private RestaurantCategory restaurantCategory;
 }

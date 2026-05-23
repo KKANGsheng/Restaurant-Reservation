@@ -23,22 +23,22 @@ public class TableController {
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('MERCHANT')")
-    public ResponseEntity<Table> createTables(@Valid @RequestBody TableReq req) {
-        Table table = tableService.createTable(req);
+    public ResponseEntity<RestaurantTable> createTables(@Valid @RequestBody TableReq req) {
+        RestaurantTable table = tableService.createTable(req);
         return  ResponseEntity.ok(table);
     }
 
     @GetMapping("/{restaurantId}")
     @PreAuthorize("hasAuthority('MERCHANT')")
-    public ResponseEntity<List<Table>> getRestaurantTables(@PathVariable Long restaurantId) {
-        List<Table> tables = tableService.getRestaurantTables(restaurantId);
+    public ResponseEntity<List<RestaurantTable>> getRestaurantTables(@PathVariable Long restaurantId) {
+        List<RestaurantTable> tables = tableService.getRestaurantTables(restaurantId);
         return ResponseEntity.ok(tables);
     }
 
     @PutMapping("/{tableId}")
     @PreAuthorize("hasAuthority('MERCHANT')")
-    public ResponseEntity<Table> updateTable (@PathVariable Long tableId,@RequestBody UpdateTableReq req) {
-        Table table = tableService.updateTable(tableId, req);
+    public ResponseEntity<RestaurantTable> updateTable (@PathVariable Long tableId,@RequestBody UpdateTableReq req) {
+        RestaurantTable table = tableService.updateTable(tableId, req);
         return ResponseEntity.ok(table);
     }
 
