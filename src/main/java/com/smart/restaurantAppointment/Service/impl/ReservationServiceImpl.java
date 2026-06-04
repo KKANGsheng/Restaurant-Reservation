@@ -198,7 +198,6 @@ public class ReservationServiceImpl implements ReservationService {
             throw new BadRequestException("Please wait a moment and try again");
         }
         return new BookingKeys(lockKey, bookedKey);
-
     }
 
 }

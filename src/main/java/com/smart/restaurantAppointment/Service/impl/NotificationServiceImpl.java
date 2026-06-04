@@ -89,4 +89,14 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendReservationRemindersDue(String email, String customerName, LocalDateTime reservationDate, String restaurantName) {
+        log.info("send Booking reminder Due");
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Reminder for Reservation Booking");
+        message.setText("Hi " +customerName + "please remember your booking at tomorrow + " +reservationDate +
+                        "at " +restaurantName);
+        mailSender.send(message);
+    }
+
 }

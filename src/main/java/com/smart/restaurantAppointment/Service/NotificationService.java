@@ -10,4 +10,5 @@ public interface NotificationService {
     void sendBookingEventNotification(BookingCreatedEvent bookingCreatedEvent);
     void sendMerchantCreatedNotification(MerchantCreatedEvent merchant);
     void sendPasswordResetEventNotification (PasswordResetRequestedEvent passwordResetRequest);
+    void sendReservationRemindersDue(String email, String customerName, LocalDateTime reservationDate, String restaurantName);
 }
