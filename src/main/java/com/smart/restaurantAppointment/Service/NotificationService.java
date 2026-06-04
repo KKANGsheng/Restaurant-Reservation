@@ -1,10 +1,10 @@
 package com.smart.restaurantAppointment.Service;
 
-import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
-import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
-import com.smart.restaurantAppointment.dto.PasswordResetRequestedEvent;
-import com.smart.restaurantAppointment.dto.UserCreatedEvent;
+import com.smart.restaurantAppointment.dto.*;
 import com.smart.restaurantAppointment.entity.Merchant;
+
+import java.time.LocalDateTime;
+
 public interface NotificationService {
     void sendUserCreatedNotification(UserCreatedEvent userCreatedEvent);
     void sendBookingEventNotification(BookingCreatedEvent bookingCreatedEvent);

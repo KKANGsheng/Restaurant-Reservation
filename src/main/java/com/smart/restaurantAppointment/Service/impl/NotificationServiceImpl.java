@@ -4,10 +4,7 @@ import com.smart.restaurantAppointment.Enumerator.EventPurpose;
 import com.smart.restaurantAppointment.Service.NotificationService;
 import com.smart.restaurantAppointment.Service.UserService;
 import com.smart.restaurantAppointment.config.AppConfig;
-import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
-import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
-import com.smart.restaurantAppointment.dto.PasswordResetRequestedEvent;
-import com.smart.restaurantAppointment.dto.UserCreatedEvent;
+import com.smart.restaurantAppointment.dto.*;
 import com.smart.restaurantAppointment.entity.Merchant;
 import jdk.jfr.Event;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +13,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
@@ -46,6 +46,8 @@ public class NotificationServiceImpl implements NotificationService {
                        + " on " + bookingCreatedEvent.getRestaurantName()
                        + " has received ");
         mailSender.send(message);
+//        log.info("Received booking event: {}", bookingCreatedEvent);
+//        throw new RuntimeException("forcing DLT test");
     }
 
     @Override
@@ -85,4 +87,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
         mailSender.send(message);
     }
+
+    @Override
 }

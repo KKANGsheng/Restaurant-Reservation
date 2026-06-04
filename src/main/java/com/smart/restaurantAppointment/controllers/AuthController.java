@@ -60,6 +60,7 @@ public class AuthController {
     }
 
     @PostMapping("/password/reset-confirm")
+
     public ResponseEntity<ApiResponse<Void>> passwordResetConfirm (@RequestBody ResetPasswordConfirmReq resetPasswordConfirmReq) {
         userService.resetPasswordConfirm(resetPasswordConfirmReq);
         return ResponseEntity.ok(ApiResponse.success("Password Reset has completed",null));

@@ -1,0 +1,14 @@
+ARG BASE_JDK_IMAGE=amazoncorretto:21-alpine-jdk
+#Stage 1 :will have the caches Dependencies
+FROM ${BASE_JDK_IMAGE} AS dependencies
+RUN apk add --no-cache maven
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+#Stage 2:Build
+FROM dependencies AS builder
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+

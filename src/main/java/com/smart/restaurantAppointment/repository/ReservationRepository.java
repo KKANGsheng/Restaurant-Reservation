@@ -2,6 +2,7 @@ package com.smart.restaurantAppointment.repository;
 
 
 import com.smart.restaurantAppointment.Enumerator.ReservationStatus;
+import com.smart.restaurantAppointment.dto.response.ReservationResponseDTO;
 import com.smart.restaurantAppointment.entity.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,4 +43,13 @@ public interface ReservationRepository  extends JpaRepository<Reservation,Long> 
                                             @Param("toDate")LocalDateTime toDate,
                                             @Param("customerName")String customerName,
                                             @Param("email")String email, Pageable pageable);
+
+    @Query("""
+           SELECT r from Reservation r
+           WHERE r.status =:reservationStatus
+           AND r.reservationDateTime >= :from
+           AND r.reservationDateTime  <=:to
+           AND r.reminder = false
+           """)
+    List<Reservation> findRemindersDue(@Param("from")LocalDateTime from,@Param("to") LocalDateTime to,@Param("reservationStatus") ReservationStatus reservationStatus);
 }

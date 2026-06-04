@@ -76,4 +76,11 @@ public class ReservationController {
     ) {
         return ResponseEntity.ok(reservationService.getMerchantReservations(pageable,fromDate, toDate, reservationStatus, name,email,restaurantId));
     }
+
+    @GetMapping("/history")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    public PageResponse<ReservationResponseDTO> getReservationHistory(Pageable pageable) {
+        return reservationService.getReservationHistory(pageable);
+    }
+
 }

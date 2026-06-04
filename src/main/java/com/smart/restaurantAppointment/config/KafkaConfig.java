@@ -12,8 +12,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +31,6 @@ public class KafkaConfig {
 
     Map<String,Object> producerConfigs() {
         Map<String,Object> config = new HashMap<>();
-
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
@@ -42,7 +45,6 @@ public class KafkaConfig {
 
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
-
         return new KafkaTemplate<>(producerFactory());
     }
 
@@ -63,11 +65,23 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(DefaultErrorHandler errorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 
+    @Bean
+    public DeadLetterPublishingRecoverer deadLetterRecoverer(KafkaTemplate<String,Object> template) {
+        return new DeadLetterPublishingRecoverer(template);
+    }
+
+    @Bean
+    public DefaultErrorHandler errorHandler(DeadLetterPublishingRecoverer recoverer) {
+        DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, new FixedBackOff(1000L,2));
+        handler.addNotRetryableExceptions(DeserializationException.class);
+        return handler;
+    }
 
 }

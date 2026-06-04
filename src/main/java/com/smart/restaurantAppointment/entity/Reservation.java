@@ -34,4 +34,7 @@ public class Reservation extends BaseEntity {
     private RestaurantTable assignedTable;
 
     private LocalDateTime endDateTime;
+
+    @Column(nullable = false)
+    private Boolean reminder;
 }

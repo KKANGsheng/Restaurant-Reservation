@@ -20,10 +20,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.cglib.core.Local;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -46,20 +49,21 @@ public class ReservationServiceImpl implements ReservationService {
     private final SecurityUtils securityUtils;
 
     @Override
+    @Transactional
     public ReservationResponseDTO createReservation(ReservationRequestDTO dto, User user) {
         Reservation reservation =new Reservation();
         Restaurant restaurant = restaurantRepository.findById(dto.getRestaurantId()).orElseThrow(()-> new BadRequestException("Restaurant did not exist"));
         validateReservation(restaurant, user, dto);
         BookingKeys keys = validateDuplicateRequest(user,restaurant,dto);
         reservation.setCustomer(user);
-        reservation.setStatus(ReservationStatus.PENDING_CONFIRMATION);
+        reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation.setReservationDateTime(dto.getReservationDateTime());
         reservation.setSize(dto.getSize());
         reservation.setRestaurant(restaurant);
+        reservation.setReminder(Boolean.FALSE);
 
         LocalDateTime start = dto.getReservationDateTime();
         LocalDateTime end = dto.getReservationDateTime().plusMinutes(restaurant.getDefaultBookingMinutes());
-
 
         RestaurantTable table= tableService.findBestFitFreeTable(restaurant,dto.getSize(),start, end).orElseThrow(()-> new ConflictException("No tables available at this time. Please pick another time slot"));
 
@@ -167,6 +171,18 @@ public class ReservationServiceImpl implements ReservationService {
 
         reservation.setStatus(ReservationStatus.CONFIRMED);
         return ReservationResponseDTO.from(reservationRepository.save(reservation));
+    }
+
+    @Override
+    public PageResponse<ReservationResponseDTO> getReservationHistory(Pageable pageable) {
+       User user = securityUtils.getCurrentUser();
+       Pageable sorted = PageRequest.of(
+                         pageable.getPageNumber(),
+                         pageable.getPageSize(),
+                         Sort.by("reservationDateTime").descending()
+                         );
+       Page<Reservation> page = reservationRepository.findByCustomer(user, sorted);
+       return  PageResponse.from(page.map(ReservationResponseDTO::from));
     }
 
     private BookingKeys validateDuplicateRequest (User user, Restaurant restaurant, ReservationRequestDTO dto) {

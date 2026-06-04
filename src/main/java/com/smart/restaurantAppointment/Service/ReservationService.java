@@ -27,4 +27,6 @@ public interface ReservationService {
     ReservationResponseDTO cancelReservation(Long id);
 
     ReservationResponseDTO confirmReservation(Long id);
+
+    PageResponse<ReservationResponseDTO> getReservationHistory(Pageable pageable);
 }
