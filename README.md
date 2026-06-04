@@ -9,3 +9,56 @@
   - Event-driven notifications via Kafka → email
   - Invite-token user onboarding
   - Forgot-password flow with single-use, time-bound tokens
+
+### API Endpoints Overview
+
+#### Authentication & Authorization
+```
+POST   /api/auth/user/register               - Register new user
+POST   /api/auth/user/login                  - User login
+POST   /api/auth/user/logout                 - User logout
+POST   /api/auth/user/refreshToken           - Refresh access token
+POST   /api/auth/password/reset              - Reset Password
+POST   /api/auth/password/forgot             - Forgot Password
+POST   /api/auth/password/reset-confirm      - Forgot Password Confirm
+```
+
+#### Merchant
+```
+POST    /api/v1/merchant/invite-link                  - Generate Invite Link to user to register under merchant
+GET    /api/v1/merchant/user                          - Create User under merchant
+```
+
+#### Reservation
+```
+POST   /api/v1/reservation                                             - Create Reservation
+PUT    /api/v1/reservation/{id}/cancel                                 - Cancel Reservation
+PUT    /api/v1/reservation/{id}/confirm                                - Confirm Reservation
+GET    /api/v1/reservation/                                            - Get Reservation
+GET    /api/v1/reservation/history                                     - Get Reservation History
+```
+
+#### Restaurant
+```
+POST   /api/v1/restaurant                          - Create Restaurant
+GET    /api/v1/restaurant/getCustomerRestaurants   - Get All customer Restaurants
+GET    /api/v1/restaurant/getAllRestaurants        - Get All restaurants
+PUT    /api/v1/restaurant/{id}                     - Update Restaurant 
+POST   /api/v1/restaurant/{id}                     - Delete Restaurant 
+```
+
+#### Table
+```
+POST   /api/v1/restaurant                          - Create Table
+GET    /api/v1/table/{restaurantId}                - Get Restaurant Table
+PUT    /api/v1/table/{tableId}                     - Update Table
+PUT    /api/v1/table/{tableId}                     - Update Table 
+PUT    /api/v1/table/{tableId}                     - Delete Restaurant 
+```
+
+
+
+
+
+```
+
