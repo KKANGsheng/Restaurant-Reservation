@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/merchants")
+@RequestMapping("/api/v1/merchant")
 @RequiredArgsConstructor
 public class MerchantController {
     private final MerchantService merchantService;

@@ -22,9 +22,16 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/restaurants")
+@RequestMapping("/api/v1/restaurant")
 public class RestaurantController {
     private final RestaurantService restaurantService;
+
+    @PostMapping("/restaurants")
+    @PreAuthorize("hasAuthority('MERCHANT')")
+    public ResponseEntity<Restaurant> createRestaurant(@RequestBody RestaurantReq req) {
+        Restaurant restaurant = restaurantService.createRestaurant(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(restaurant);
+    }
 
     @GetMapping("getCustomerRestaurants")
     @PreAuthorize("hasAuthority('CUSTOMER')")
@@ -40,14 +47,7 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurants);
     }
 
-    @PostMapping("/restaurants")
-    @PreAuthorize("hasAuthority('MERCHANT')")
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody RestaurantReq req) {
-        Restaurant restaurant = restaurantService.createRestaurant(req);
-        return ResponseEntity.status(HttpStatus.CREATED).body(restaurant);
-    }
-
-    @PutMapping("/restaurants/{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('MERCHANT')")
     public ResponseEntity<ApiResponse<Restaurant>> updateRestaurant(@PathVariable Long id, @RequestBody RestaurantReq req) {
         Restaurant restaurant = restaurantService.updateRestaurant(id, req);
@@ -55,7 +55,7 @@ public class RestaurantController {
     }
 
 
-    @DeleteMapping("restaurants/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('MERCHANT')")
     public ResponseEntity<Void> deleteRestaurant (@PathVariable Long id) {
         restaurantService.deleteRestaurant(id);

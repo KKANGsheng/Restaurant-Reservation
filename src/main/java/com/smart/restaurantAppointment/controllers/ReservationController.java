@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/reservations")
+@RequestMapping("/api/v1/reservation")
 public class ReservationController {
     private final ReservationService reservationService;
     private final SecurityUtils securityUtils;
@@ -42,13 +42,6 @@ public class ReservationController {
         ReservationResponseDTO reservation = reservationService.createReservation(dto, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
-
-    @GetMapping("/getCustomerReservation")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
-    public ResponseEntity<Page<ReservationResponseDTO>> getCustomerReservations( @PageableDefault(size = 10, sort = "createdDate") Pageable pageable) {
-        return ResponseEntity.ok(reservationService.getCustomerReservations(pageable));
-    }
-
 
     @PutMapping("/{id}/cancel")
     @PreAuthorize("hasAuthority('MERCHANT')")
