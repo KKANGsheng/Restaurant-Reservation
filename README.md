@@ -25,17 +25,17 @@ POST   /api/auth/password/reset-confirm      - Forgot Password Confirm
 
 #### Merchant
 ```
-POST    /api/v1/merchant/invite-link                  - Generate Invite Link to user to register under merchant
-GET    /api/v1/merchant/user                          - Create User under merchant
+POST    /api/v1/merchant/invite-link      - Generate Invite Link to user to register under merchant
+GET    /api/v1/merchant/user              - Create User under merchant
 ```
 
 #### Reservation
 ```
-POST   /api/v1/reservation                                             - Create Reservation
-PUT    /api/v1/reservation/{id}/cancel                                 - Cancel Reservation
-PUT    /api/v1/reservation/{id}/confirm                                - Confirm Reservation
-GET    /api/v1/reservation/                                            - Get Reservation
-GET    /api/v1/reservation/history                                     - Get Reservation History
+POST   /api/v1/reservation                     - Create Reservation
+PUT    /api/v1/reservation/{id}/cancel         - Cancel Reservation
+PUT    /api/v1/reservation/{id}/confirm        - Confirm Reservation
+GET    /api/v1/reservation/                    - Get Reservation
+GET    /api/v1/reservation/history             - Get Reservation History
 ```
 
 #### Restaurant
