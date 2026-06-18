@@ -1,18 +1,14 @@
 package com.smart.restaurantAppointment.Service;
 
-import com.smart.restaurantAppointment.Enumerator.AccountStatus;
-import com.smart.restaurantAppointment.dto.Request.RestaurantReq;
-import com.smart.restaurantAppointment.entity.Merchant;
-import com.smart.restaurantAppointment.entity.Reservation;
+import com.smart.restaurantAppointment.dto.RestaurantDTO;
+import com.smart.restaurantAppointment.dto.request.RestaurantReq;
 import com.smart.restaurantAppointment.entity.Restaurant;
-import com.smart.restaurantAppointment.util.SecurityUtils;
-import jakarta.persistence.*;
 
 import java.util.List;
 
 public interface RestaurantService {
 
-    public List<Restaurant> getAllRestaurants();
+    public List<RestaurantDTO> getAllRestaurants();
 
     public Restaurant createRestaurant (RestaurantReq dto);
 

@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.smart</groupId>
-	<artifactId>tuitionCentre</artifactId>
+	<artifactId>restaurantReservationApplication</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>tuitionCentre</name>
-	<description>TuitionCentre</description>
+	<name>app</name>
+	<description>restaurantReservationApplication</description>
 	<url/>
 	<licenses>
 		<license/>

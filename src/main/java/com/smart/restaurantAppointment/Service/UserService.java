@@ -1,8 +1,8 @@
 package com.smart.restaurantAppointment.Service;
 
-import com.smart.restaurantAppointment.dto.Request.ChangePasswordReq;
-import com.smart.restaurantAppointment.dto.Request.CreatedUserByMerchantReq;
-import com.smart.restaurantAppointment.dto.Request.ResetPasswordConfirmReq;
+import com.smart.restaurantAppointment.dto.request.ChangePasswordReq;
+import com.smart.restaurantAppointment.dto.request.CreatedUserByMerchantReq;
+import com.smart.restaurantAppointment.dto.request.ResetPasswordConfirmReq;
 import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.entity.InviteToken;
 import com.smart.restaurantAppointment.entity.Merchant;

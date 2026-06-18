@@ -1,4 +1,4 @@
-package com.smart.restaurantAppointment.dto.Request;
+package com.smart.restaurantAppointment.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 

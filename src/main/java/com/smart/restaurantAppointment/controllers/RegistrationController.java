@@ -3,12 +3,10 @@ package com.smart.restaurantAppointment.controllers;
 
 import com.smart.restaurantAppointment.Service.MerchantService;
 import com.smart.restaurantAppointment.Service.UserService;
-import com.smart.restaurantAppointment.Service.impl.UserServiceImpl;
 import com.smart.restaurantAppointment.dto.MerchantRegisterDTO;
-import com.smart.restaurantAppointment.dto.Request.InviteRegistrationReq;
+import com.smart.restaurantAppointment.dto.request.InviteRegistrationReq;
 import com.smart.restaurantAppointment.dto.UserDTO;
 import com.smart.restaurantAppointment.entity.Merchant;
-import com.smart.restaurantAppointment.entity.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

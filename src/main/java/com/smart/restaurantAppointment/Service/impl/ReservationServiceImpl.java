@@ -1,12 +1,11 @@
 package com.smart.restaurantAppointment.Service.impl;
 
-import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Enumerator.ReservationStatus;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.Exception.ConflictException;
 import com.smart.restaurantAppointment.Service.ReservationService;
 import com.smart.restaurantAppointment.Service.TableService;
-import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.BookingCreatedEvent;
 import com.smart.restaurantAppointment.dto.ReservationRequestDTO;
 import com.smart.restaurantAppointment.dto.response.PageResponse;
 import com.smart.restaurantAppointment.dto.response.ReservationResponseDTO;
@@ -17,23 +16,18 @@ import com.smart.restaurantAppointment.util.DateTimeUtils;
 import com.smart.restaurantAppointment.util.RedisKey;
 import com.smart.restaurantAppointment.util.SecurityUtils;
 import lombok.AllArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service

@@ -15,7 +15,7 @@ import java.time.LocalTime;
 public class PasswordResetToken extends BaseEntity{
     private String token;
     private LocalDateTime expiryDate;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
     private String email;

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +25,7 @@ public class ReservationReminderScheduler {
     private final NotificationService notificationService;
 
     @Scheduled(fixedRate = 10000)
+    @Transactional
     public void sendReminders() {
         LocalDateTime from = LocalDateTime.now().plusDays(1).toLocalDate().atStartOfDay();
         LocalDateTime to  = from.plusDays(1).minusNanos(1);
@@ -32,6 +34,7 @@ public class ReservationReminderScheduler {
         for (Reservation reservation:reservationList) {
             reservation.setReminder(true);
             notificationService.sendReservationRemindersDue(reservation.getCustomer().getEmail(), reservation.getCustomer().getName(), reservation.getReservationDateTime(), reservation.getRestaurant().getName());
+            reservationRepository.save(reservation);
         }
     }
 

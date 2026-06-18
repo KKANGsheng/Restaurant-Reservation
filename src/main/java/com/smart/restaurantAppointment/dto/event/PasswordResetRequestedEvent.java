@@ -1,7 +1,6 @@
-package com.smart.restaurantAppointment.dto;
+package com.smart.restaurantAppointment.dto.event;
 
 import lombok.Data;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 

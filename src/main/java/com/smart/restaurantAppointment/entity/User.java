@@ -20,7 +20,7 @@ public class User extends  BaseEntity {
     private UserRole role;
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name="merchant_id")
     private Merchant merchant;
     private Boolean accountLocked;

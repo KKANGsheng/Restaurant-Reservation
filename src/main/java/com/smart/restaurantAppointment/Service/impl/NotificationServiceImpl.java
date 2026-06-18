@@ -2,19 +2,17 @@ package com.smart.restaurantAppointment.Service.impl;
 
 import com.smart.restaurantAppointment.Enumerator.EventPurpose;
 import com.smart.restaurantAppointment.Service.NotificationService;
-import com.smart.restaurantAppointment.Service.UserService;
 import com.smart.restaurantAppointment.config.AppConfig;
-import com.smart.restaurantAppointment.dto.*;
-import com.smart.restaurantAppointment.entity.Merchant;
-import jdk.jfr.Event;
+import com.smart.restaurantAppointment.dto.event.BookingCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.MerchantCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.PasswordResetRequestedEvent;
+import com.smart.restaurantAppointment.dto.event.UserCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service

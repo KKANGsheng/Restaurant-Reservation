@@ -1,18 +1,12 @@
 package com.smart.restaurantAppointment.controllers;
 
 
-import com.smart.restaurantAppointment.Service.ReservationService;
 import com.smart.restaurantAppointment.Service.RestaurantService;
-import com.smart.restaurantAppointment.dto.Request.RestaurantReq;
-import com.smart.restaurantAppointment.dto.Request.TableReq;
+import com.smart.restaurantAppointment.dto.RestaurantDTO;
+import com.smart.restaurantAppointment.dto.request.RestaurantReq;
 import com.smart.restaurantAppointment.dto.response.ApiResponse;
 import com.smart.restaurantAppointment.entity.Restaurant;
-import com.smart.restaurantAppointment.entity.RestaurantTable;
-import com.smart.restaurantAppointment.repository.RestaurantRepository;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,8 +36,8 @@ public class RestaurantController {
     //  getMerchantRestaurants
     @GetMapping("getAllRestaurants")
     @PreAuthorize("hasAuthority('MERCHANT')")
-    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
-        List<Restaurant> restaurants = restaurantService.getAllRestaurants();
+    public ResponseEntity<List<RestaurantDTO>> getAllRestaurants() {
+        List<RestaurantDTO> restaurants = restaurantService.getAllRestaurants();
         return ResponseEntity.ok(restaurants);
     }
 

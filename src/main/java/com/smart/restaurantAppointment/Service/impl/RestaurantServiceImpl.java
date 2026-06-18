@@ -3,22 +3,20 @@ package com.smart.restaurantAppointment.Service.impl;
 import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.Service.RestaurantService;
-import com.smart.restaurantAppointment.dto.Request.RestaurantReq;
-import com.smart.restaurantAppointment.dto.ReservationRequestDTO;
+import com.smart.restaurantAppointment.dto.RestaurantDTO;
+import com.smart.restaurantAppointment.dto.request.RestaurantReq;
 import com.smart.restaurantAppointment.entity.Merchant;
 import com.smart.restaurantAppointment.entity.MerchantUserDetails;
 import com.smart.restaurantAppointment.entity.Restaurant;
 import com.smart.restaurantAppointment.entity.User;
 import com.smart.restaurantAppointment.repository.RestaurantRepository;
-import com.smart.restaurantAppointment.util.DateTimeUtils;
-import com.smart.restaurantAppointment.util.RedisKey;
 import com.smart.restaurantAppointment.util.SecurityUtils;
 import lombok.AllArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @AllArgsConstructor
@@ -27,15 +25,16 @@ public class RestaurantServiceImpl implements RestaurantService {
     private final SecurityUtils securityUtils;
 
     @Override
-    public List<Restaurant> getAllRestaurants() {
+    public List<RestaurantDTO> getAllRestaurants() {
         MerchantUserDetails details = (MerchantUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Merchant merchant = details.getMerchant();
-        List<Restaurant> restaurants = restaurantRepository.findByMerchant(merchant);
-
+        List<RestaurantDTO> restaurants = restaurantRepository
+                                        .findByMerchant(merchant)
+                                        .stream()
+                                        .map(RestaurantDTO::from).toList();
         if (restaurants.isEmpty()) {
             throw new BadRequestException("Merchant is not exist");
         }
-
         return restaurants;
     }
 

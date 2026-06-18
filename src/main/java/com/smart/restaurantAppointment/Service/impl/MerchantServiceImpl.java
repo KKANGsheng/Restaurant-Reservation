@@ -68,8 +68,12 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     public void validateMerchantRegisterRequest(MerchantRegisterDTO merchantRegisterDTO){
-        if(merchantRepository.existsByEmail(merchantRegisterDTO.getEmail())){
-            throw new IllegalArgumentException("email has been Registered");
+        if (merchantRepository.existsByEmail(merchantRegisterDTO.getEmail())){
+            throw new BadRequestException("email has been Registered");
+        }
+
+        if (merchantRepository.existsBySlug(merchantRegisterDTO.getSlug())) {
+            throw new BadRequestException("slug has been taken");
         }
     }
 

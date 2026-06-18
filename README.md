@@ -14,13 +14,13 @@
 
 #### Authentication & Authorization
 ```
-POST   /api/auth/user/register               - Register new user
-POST   /api/auth/user/login                  - User login
-POST   /api/auth/user/logout                 - User logout
-POST   /api/auth/user/refreshToken           - Refresh access token
-POST   /api/auth/password/reset              - Reset Password
-POST   /api/auth/password/forgot             - Forgot Password
-POST   /api/auth/password/reset-confirm      - Forgot Password Confirm
+POST   /api/v1/auth/user/register               - Register new user
+POST   /api/v1/auth/user/login                  - User login
+POST   /api/v1/auth/user/logout                 - User logout
+POST   /api/v1/auth/user/refreshToken           - Refresh access token
+POST   /api/v1/auth/password/reset              - Reset Password
+POST   /api/v1/auth/password/forgot             - Forgot Password
+POST   /api/v1/auth/password/reset-confirm      - Forgot Password Confirm
 ```
 
 #### Merchant

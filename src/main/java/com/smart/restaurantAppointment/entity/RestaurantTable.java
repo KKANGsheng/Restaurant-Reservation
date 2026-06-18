@@ -1,12 +1,9 @@
 package com.smart.restaurantAppointment.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import jakarta.persistence.Table;
 
 @Entity
 @Setter
@@ -15,7 +12,7 @@ public class RestaurantTable extends BaseEntity{
     private String name;
     private Integer capacity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="restaurant_id")
     private Restaurant restaurant;
 }

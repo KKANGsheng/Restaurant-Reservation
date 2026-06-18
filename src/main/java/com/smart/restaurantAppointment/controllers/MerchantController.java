@@ -4,26 +4,15 @@ import com.smart.restaurantAppointment.Service.MerchantService;
 import com.smart.restaurantAppointment.Service.ReservationService;
 import com.smart.restaurantAppointment.Service.RestaurantService;
 import com.smart.restaurantAppointment.Service.UserService;
-import com.smart.restaurantAppointment.dto.Request.CreatedUserByMerchantReq;
-import com.smart.restaurantAppointment.dto.Request.RestaurantReq;
+import com.smart.restaurantAppointment.dto.request.CreatedUserByMerchantReq;
 import com.smart.restaurantAppointment.dto.UserDTO;
-import com.smart.restaurantAppointment.dto.response.ApiResponse;
 import com.smart.restaurantAppointment.dto.response.InviteLinkResponse;
-import com.smart.restaurantAppointment.dto.response.ReservationResponseDTO;
-import com.smart.restaurantAppointment.entity.Merchant;
-import com.smart.restaurantAppointment.entity.Reservation;
-import com.smart.restaurantAppointment.entity.Restaurant;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/merchant")

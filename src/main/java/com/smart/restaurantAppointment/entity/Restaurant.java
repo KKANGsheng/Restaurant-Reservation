@@ -22,11 +22,11 @@ public class Restaurant extends  BaseEntity{
     private String address;
     private String contactNumber;
     private Integer capacity;  // max people per time slot (null = no limit)
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name="merchant_fk")
     private Merchant merchant;
     @JsonIgnore
-    @OneToMany(mappedBy = "restaurant")
+    @OneToMany(mappedBy = "restaurant", fetch=FetchType.LAZY)
     private List<Reservation> reservations;
     private String imageLogo;
     @Enumerated(EnumType.STRING)

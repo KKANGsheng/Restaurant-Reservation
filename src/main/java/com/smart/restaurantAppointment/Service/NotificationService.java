@@ -1,7 +1,9 @@
 package com.smart.restaurantAppointment.Service;
 
-import com.smart.restaurantAppointment.dto.*;
-import com.smart.restaurantAppointment.entity.Merchant;
+import com.smart.restaurantAppointment.dto.event.BookingCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.MerchantCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.PasswordResetRequestedEvent;
+import com.smart.restaurantAppointment.dto.event.UserCreatedEvent;
 
 import java.time.LocalDateTime;
 

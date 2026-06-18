@@ -2,16 +2,14 @@ package com.smart.restaurantAppointment.controllers;
 
 
 import com.smart.restaurantAppointment.Service.TableService;
-import com.smart.restaurantAppointment.dto.Request.TableReq;
-import com.smart.restaurantAppointment.dto.Request.UpdateTableReq;
-import com.smart.restaurantAppointment.dto.ReservationRequestDTO;
+import com.smart.restaurantAppointment.dto.request.TableReq;
+import com.smart.restaurantAppointment.dto.request.UpdateTableReq;
+import com.smart.restaurantAppointment.dto.RestaurantTableDTO;
 import com.smart.restaurantAppointment.entity.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -30,8 +28,8 @@ public class TableController {
 
     @GetMapping("/{restaurantId}")
     @PreAuthorize("hasAuthority('MERCHANT')")
-    public ResponseEntity<List<RestaurantTable>> getRestaurantTables(@PathVariable Long restaurantId) {
-        List<RestaurantTable> tables = tableService.getRestaurantTables(restaurantId);
+    public ResponseEntity<List<RestaurantTableDTO>> getRestaurantTables(@PathVariable Long restaurantId) {
+        List<RestaurantTableDTO> tables = tableService.getRestaurantTables(restaurantId);
         return ResponseEntity.ok(tables);
     }
 

@@ -1,12 +1,11 @@
 package com.smart.restaurantAppointment.Service;
 
 
-import com.smart.restaurantAppointment.dto.Request.TableReq;
-import com.smart.restaurantAppointment.dto.Request.UpdateTableReq;
-import com.smart.restaurantAppointment.entity.Merchant;
+import com.smart.restaurantAppointment.dto.request.TableReq;
+import com.smart.restaurantAppointment.dto.request.UpdateTableReq;
+import com.smart.restaurantAppointment.dto.RestaurantTableDTO;
 import com.smart.restaurantAppointment.entity.Restaurant;
 import com.smart.restaurantAppointment.entity.RestaurantTable;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +15,7 @@ public interface TableService {
 
     public RestaurantTable createTable(TableReq req);
 
-    public List<RestaurantTable> getRestaurantTables(Long restaurantId);
+    public List<RestaurantTableDTO> getRestaurantTables(Long restaurantId);
 
     public RestaurantTable updateTable(Long tableId, UpdateTableReq req);
 

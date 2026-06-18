@@ -1,9 +1,9 @@
 package com.smart.restaurantAppointment.listener;
 
-import com.smart.restaurantAppointment.dto.BookingCreatedEvent;
-import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
-import com.smart.restaurantAppointment.dto.PasswordResetRequestedEvent;
-import com.smart.restaurantAppointment.dto.UserCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.BookingCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.MerchantCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.PasswordResetRequestedEvent;
+import com.smart.restaurantAppointment.dto.event.UserCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

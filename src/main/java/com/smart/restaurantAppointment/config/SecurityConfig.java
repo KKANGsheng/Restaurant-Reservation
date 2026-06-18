@@ -42,12 +42,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/auth/user/login",
-                                         "/auth/user/refreshToken",
+                                "/api/v1/auth/user/login",
+                                         "/api/v1/auth/user/refreshToken",
                                          "/register/**",
                                          "/swagger-ui/**",
                                          "/swagger-ui.html",
                                          "/auth/password/forgot",
+                                         "/api/v1/public/**",
                                          "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()            // others need JWT
                 )
@@ -68,6 +69,5 @@ public class SecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
-
 
 }

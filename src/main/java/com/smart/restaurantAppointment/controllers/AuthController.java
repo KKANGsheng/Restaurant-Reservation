@@ -6,10 +6,10 @@ import com.smart.restaurantAppointment.Service.RefreshTokenService;
 import com.smart.restaurantAppointment.Service.UserService;
 import com.smart.restaurantAppointment.dto.LoginRequest;
 import com.smart.restaurantAppointment.dto.LoginResponse;
-import com.smart.restaurantAppointment.dto.Request.ChangePasswordReq;
-import com.smart.restaurantAppointment.dto.Request.ForgotPasswordReq;
-import com.smart.restaurantAppointment.dto.Request.RefreshTokenReq;
-import com.smart.restaurantAppointment.dto.Request.ResetPasswordConfirmReq;
+import com.smart.restaurantAppointment.dto.request.ChangePasswordReq;
+import com.smart.restaurantAppointment.dto.request.ForgotPasswordReq;
+import com.smart.restaurantAppointment.dto.request.RefreshTokenReq;
+import com.smart.restaurantAppointment.dto.request.ResetPasswordConfirmReq;
 import com.smart.restaurantAppointment.dto.response.ApiResponse;
 import com.smart.restaurantAppointment.dto.response.RefreshTokenResponse;
 import com.smart.restaurantAppointment.jwt.JwtService;
@@ -19,7 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

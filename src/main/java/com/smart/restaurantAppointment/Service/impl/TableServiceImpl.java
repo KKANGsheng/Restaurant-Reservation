@@ -4,23 +4,22 @@ import com.smart.restaurantAppointment.Enumerator.ReservationStatus;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.Service.RestaurantService;
 import com.smart.restaurantAppointment.Service.TableService;
-import com.smart.restaurantAppointment.dto.Request.TableReq;
-import com.smart.restaurantAppointment.dto.Request.UpdateTableReq;
-import com.smart.restaurantAppointment.entity.Merchant;
+import com.smart.restaurantAppointment.dto.request.TableReq;
+import com.smart.restaurantAppointment.dto.request.UpdateTableReq;
+import com.smart.restaurantAppointment.dto.RestaurantTableDTO;
 import com.smart.restaurantAppointment.entity.Restaurant;
 import com.smart.restaurantAppointment.entity.RestaurantTable;
 import com.smart.restaurantAppointment.repository.ReservationRepository;
 import com.smart.restaurantAppointment.repository.RestaurantRepository;
 import com.smart.restaurantAppointment.repository.RestaurantTableRepository;
-import com.smart.restaurantAppointment.util.SecurityUtils;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.PageRequest;
 
 @AllArgsConstructor
 @Service
@@ -45,12 +44,13 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public List<RestaurantTable> getRestaurantTables(Long restaurantId) {
+    public List<RestaurantTableDTO> getRestaurantTables(Long restaurantId) {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new BadRequestException("Restaurant not found"));
         restaurantService.validateRestaurantOwnership(restaurant);
-        List<RestaurantTable> table = tableRepository.findByRestaurant(restaurant);
-        return table;
+        List<RestaurantTableDTO> tables = tableRepository.findByRestaurant(restaurant)
+                                                    .stream().map(RestaurantTableDTO::from).toList();
+        return tables;
     }
 
     @Override
@@ -72,12 +72,9 @@ public class TableServiceImpl implements TableService {
 
     @Override
     public Optional<RestaurantTable> findBestFitFreeTable(Restaurant restaurant, int capacity, LocalDateTime start, LocalDateTime end) {
-        List<RestaurantTable> availableTables = tableRepository.findByRestaurant(restaurant);
-        return availableTables.stream()
-                .filter(t->t.getCapacity() != null && t.getCapacity() >=capacity)
-                .filter(t-> reservationRepository.findOverlappingRestaurant(t,start,end, ReservationStatus.CANCELED).isEmpty())
-                .sorted(Comparator.comparingInt(RestaurantTable::getCapacity))
-                .findFirst();
+        return tableRepository
+                .findFreeTablesFittingSize(restaurant, capacity, start, end, PageRequest.of(0,1))
+                .stream().findFirst();
     }
 
 }

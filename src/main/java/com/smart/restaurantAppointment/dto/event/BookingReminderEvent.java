@@ -1,4 +1,4 @@
-package com.smart.restaurantAppointment.dto;
+package com.smart.restaurantAppointment.dto.event;
 
 import lombok.Data;
 
