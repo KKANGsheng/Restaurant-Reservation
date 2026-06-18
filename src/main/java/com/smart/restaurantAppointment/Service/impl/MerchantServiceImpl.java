@@ -4,7 +4,7 @@ import com.smart.restaurantAppointment.Enumerator.AccountStatus;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.Service.MerchantService;
 import com.smart.restaurantAppointment.config.AppConfig;
-import com.smart.restaurantAppointment.dto.MerchantCreatedEvent;
+import com.smart.restaurantAppointment.dto.event.MerchantCreatedEvent;
 import com.smart.restaurantAppointment.dto.MerchantRegisterDTO;
 import com.smart.restaurantAppointment.entity.InviteToken;
 import com.smart.restaurantAppointment.entity.Merchant;
@@ -16,13 +16,11 @@ import com.smart.restaurantAppointment.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service

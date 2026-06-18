@@ -18,6 +18,7 @@ import java.util.List;
 public class Merchant extends BaseEntity {
 
     private String name;
+    @Column(unique = true,nullable = false)
     private String email;
     @JsonIgnore
     private String password;
@@ -28,14 +29,12 @@ public class Merchant extends BaseEntity {
 //  Lookup at the merchant field in restaurant
 //  Restaurant store fk
     @JsonIgnore
-    @OneToMany(mappedBy = "merchant")
+    @OneToMany(mappedBy = "merchant",fetch = FetchType.LAZY)
     private List<Restaurant> restaurantList;
-
 //  User store fk
     @JsonIgnore
-    @OneToMany(mappedBy = "merchant")
+    @OneToMany(mappedBy = "merchant", fetch = FetchType.LAZY)
     private List<User>customers;
-
     @Enumerated(EnumType.STRING)
     private SubscriptionPlan subscriptionPlan;
 
