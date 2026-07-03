@@ -8,8 +8,11 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalTime;
 
 @Setter
 @Getter
@@ -36,4 +39,16 @@ public class MerchantRegisterDTO {
     @NotBlank
     private String password;
 
+    @NotBlank
+    private String slug;
+    private String logo;
+    @NotBlank
+    private String brandColor;
+
+    @NotNull
+    private LocalTime openingTime;
+    @NotNull
+    private LocalTime closingTime;
+    @NotNull
+    private Integer   slotIntervalMinutes;
 }
