@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class ReservationConCurrencyTest {
@@ -55,6 +57,9 @@ public class ReservationConCurrencyTest {
     void setUp() {
         redisTemplate.getConnectionFactory().getConnection().serverCommands().flushDb();
         Merchant merchant  = new Merchant();
+        String unique = UUID.randomUUID().toString();
+        merchant.setEmail("merchant-" + unique + "@test.com");
+        merchant.setSlug("merchant-" + unique);
         merchant = merchantRepository.save(merchant);
 
         User customer  = new User();
@@ -128,9 +133,11 @@ public class ReservationConCurrencyTest {
         // Fire the gun — all 10 unfreeze at once
         startGate.countDown();
 
-        // Wait up to 10s for all workers to finish
-        finishGate.await(10, TimeUnit.SECONDS);
+        // Wait for all workers to finish; fail loudly on timeout instead of
+        // asserting against half-finished counters
+        boolean allFinished = finishGate.await(60, TimeUnit.SECONDS);
         pool.shutdown();
+        assertTrue(allFinished, "Not all booking threads finished within 60s");
 
         System.out.println("Successes: " + successes.get());
         System.out.println("Failures: "  + failures.get());
