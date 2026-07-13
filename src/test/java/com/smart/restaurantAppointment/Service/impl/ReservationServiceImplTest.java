@@ -2,11 +2,13 @@ package com.smart.restaurantAppointment.Service.impl;
 import com.smart.restaurantAppointment.Enumerator.ReservationStatus;
 import com.smart.restaurantAppointment.Exception.BadRequestException;
 import com.smart.restaurantAppointment.dto.ReservationRequestDTO;
+import com.smart.restaurantAppointment.dto.response.ReservationResponseDTO;
 import com.smart.restaurantAppointment.entity.Merchant;
 import com.smart.restaurantAppointment.entity.Reservation;
 import com.smart.restaurantAppointment.entity.Restaurant;
 import com.smart.restaurantAppointment.entity.User;
 import com.smart.restaurantAppointment.repository.ReservationRepository;
+import com.smart.restaurantAppointment.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,13 +19,14 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ReservationServiceImplTest {
@@ -36,6 +39,9 @@ public class ReservationServiceImplTest {
 
     @InjectMocks
     private ReservationServiceImpl reservationService;
+
+    @Mock
+    private SecurityUtils securityUtils;
 
     private User user;
     private Merchant merchant;
@@ -56,10 +62,13 @@ public class ReservationServiceImplTest {
         restaurant= new Restaurant();
         restaurant.setId(10L);
         restaurant.setMerchant(merchant);
+        restaurant.setOpeningTime(LocalTime.of(10,0));
+        restaurant.setClosingTime(LocalTime.of(22,0));
+        restaurant.setSlotIntervalMinutes(30);
 
         dto = new ReservationRequestDTO();
         dto.setRestaurantId(10L);
-        dto.setReservationDateTime(LocalDateTime.now().plusDays(10));
+        dto.setReservationDateTime(LocalDate.now().plusDays(10).atTime(12, 0));
         dto.setSize(3);
 
         reservation = new Reservation();
@@ -104,6 +113,40 @@ public class ReservationServiceImplTest {
     void createReservationValidate() {
         assertDoesNotThrow(() -> reservationService.validateReservation(restaurant, user, dto));
     }
+
+    @Test
+    @DisplayName("confirmReservation")
+    void confirmReservationHappyPath() {
+        when(reservationRepository.findById(50L)).thenReturn(Optional.of(reservation));
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+//      Giving fake static imports
+        try (MockedStatic<SecurityUtils> sec= mockStatic(SecurityUtils.class)) {
+            sec.when(securityUtils::getCurrentMerchant).thenReturn(merchant);
+            ReservationResponseDTO result = reservationService.confirmReservation(50L);
+            assertEquals(ReservationStatus.CONFIRMED, reservation.getStatus());
+            assertNotNull(result);
+            verify(reservationRepository).save(reservation);
+        }
+    }
+
+    @Test
+    @DisplayName("confirmReservation throws when reservation does not exist")
+    void confirmReservationNotFoundThrows() {
+        when(reservationRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(BadRequestException.class, () -> reservationService.confirmReservation(99L),
+                "missing reservation must throw error");
+    }
+
+//    @Test
+//    @DisplayName("Confirm reservation")
+//    void confirmReservationValidate() {
+//       when(reservationRepository.findByCustomer(50L)).thenReturn(Optional.of(reservation));
+//       when(reservationRepository.save(any(Reservation.class))
+//
+//       try(MockedStatic<Se>)
+//    }
+
 
 
 }
