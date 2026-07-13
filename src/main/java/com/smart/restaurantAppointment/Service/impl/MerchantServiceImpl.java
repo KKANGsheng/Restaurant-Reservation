@@ -46,6 +46,8 @@ public class MerchantServiceImpl implements MerchantService {
         merchant.setStatus(AccountStatus.ACTIVE);
         merchant.setBusinessName(merchantRegisterDTO.getBusinessName());
         merchant.setName(merchantRegisterDTO.getName());
+        merchant.setSlug(merchantRegisterDTO.getSlug());
+        merchant.setBrandColor(merchantRegisterDTO.getBrandColor());
         Merchant m =merchantRepository.save(merchant);
 
 //      register restaurant
@@ -54,6 +56,10 @@ public class MerchantServiceImpl implements MerchantService {
         restaurant.setName(merchantRegisterDTO.getRestaurantName());
         restaurant.setStatus(AccountStatus.ACTIVE);
         restaurant.setRestaurantCategory(merchantRegisterDTO.getRestaurantCategory());
+        restaurant.setOpeningTime(merchantRegisterDTO.getOpeningTime());
+        restaurant.setClosingTime(merchantRegisterDTO.getClosingTime());
+        restaurant.setDefaultBookingMinutes(90);
+        restaurant.setSlotIntervalMinutes(merchantRegisterDTO.getSlotIntervalMinutes());
         restaurant.setMerchant(m);
         restaurantRepository.save(restaurant);
 //      publish event

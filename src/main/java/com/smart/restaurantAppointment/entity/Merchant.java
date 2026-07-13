@@ -37,8 +37,10 @@ public class Merchant extends BaseEntity {
     private List<User>customers;
     @Enumerated(EnumType.STRING)
     private SubscriptionPlan subscriptionPlan;
-
     private String stripeCustomerId;
-
     private String stripeSubscriptionId;
+    @Column(unique = true,nullable = false)
+    private String slug;
+    private String logoUrl;
+    private String brandColor;
 }
